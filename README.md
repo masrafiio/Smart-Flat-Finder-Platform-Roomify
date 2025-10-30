@@ -1,1 +1,1 @@
-# Smart-Roommate-Flat-Finder-Platform-Roomify
+# Smart Flat Finder Platform "Roomify"
