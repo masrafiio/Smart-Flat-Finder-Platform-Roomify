@@ -3,8 +3,8 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import CustomerProfilePage from "./pages/CustomerProfilePage";
-import OwnerProfilePage from "./pages/OwnerProfilePage";
+import TenantProfilePage from "./pages/TenantProfilePage";
+import LandlordProfilePage from "./pages/LandlordProfilePage";
 
 const App = () => {
   return (
@@ -13,8 +13,8 @@ const App = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
-      <Route path="/customer-profile" element={<CustomerProfilePage />} />
-      <Route path="/owner-profile" element={<OwnerProfilePage />} />
+      <Route path="/tenant-profile" element={<TenantProfilePage />} />
+      <Route path="/landlord-profile" element={<LandlordProfilePage />} />
     </Routes>
   );
 };
