@@ -14,7 +14,7 @@ const LandlordProfilePage = () => {
       navigate("/login");
     } else {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "owner") {
+      if (parsedUser.role !== "landlord") {
         navigate("/");
       } else {
         setUser(parsedUser);
@@ -58,7 +58,7 @@ const LandlordProfilePage = () => {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-3xl">
-              Owner Profile - {user.name}! 👋
+              Landlord Profile - {user.name}! 👋
             </h2>
             <div className="divider"></div>
             <div className="space-y-2">

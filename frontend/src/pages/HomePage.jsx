@@ -38,9 +38,9 @@ const HomePage = () => {
   };
 
   const goToProfile = () => {
-    if (user.role === "customer") {
+    if (user.role === "tenant") {
       navigate("/tenant-profile");
-    } else if (user.role === "owner") {
+    } else if (user.role === "landlord") {
       navigate("/landlord-profile");
     }
   };
