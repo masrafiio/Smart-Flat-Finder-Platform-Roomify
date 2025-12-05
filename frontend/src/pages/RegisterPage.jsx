@@ -32,10 +32,6 @@ const RegisterPage = () => {
       // Show success message
       setSuccess("Registration successful! Redirecting to login...");
 
-      // Don't save token and user data - user needs to login
-      // localStorage.setItem("token", data.token);
-      // localStorage.setItem("user", JSON.stringify(data.user));
-
       // Redirect to login page after 2 seconds
       setTimeout(() => {
         navigate("/login");
@@ -125,9 +121,8 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className="select select-bordered"
               >
-                <option value="customer">Customer</option>
-                <option value="owner">Owner</option>
-                <option value="admin">Admin</option>
+                <option value="customer">Customer (Looking for rooms)</option>
+                <option value="owner">Owner (I have properties)</option>
               </select>
             </div>
 
