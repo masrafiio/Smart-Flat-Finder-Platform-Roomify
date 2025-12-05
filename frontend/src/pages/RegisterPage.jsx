@@ -7,7 +7,7 @@ const RegisterPage = () => {
     name: "",
     email: "",
     password: "",
-    role: "customer",
+    role: "tenant",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -121,8 +121,8 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className="select select-bordered"
               >
-                <option value="customer">Customer (Looking for rooms)</option>
-                <option value="owner">Owner (I have properties)</option>
+                <option value="tenant">Tenant (Looking for rooms)</option>
+                <option value="landlord">Landlord (I have properties)</option>
               </select>
             </div>
 

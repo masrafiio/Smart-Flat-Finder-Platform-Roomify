@@ -32,7 +32,7 @@ const LoginPage = () => {
       // Role-based redirect
       if (data.user.role === "admin") {
         navigate("/admin-dashboard");
-      } else if (data.user.role === "customer" || data.user.role === "owner") {
+      } else if (data.user.role === "tenant" || data.user.role === "landlord") {
         navigate("/");
       }
     } catch (err) {

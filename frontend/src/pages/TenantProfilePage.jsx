@@ -14,7 +14,7 @@ const TenantProfilePage = () => {
       navigate("/login");
     } else {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "customer") {
+      if (parsedUser.role !== "tenant") {
         navigate("/");
       } else {
         setUser(parsedUser);
