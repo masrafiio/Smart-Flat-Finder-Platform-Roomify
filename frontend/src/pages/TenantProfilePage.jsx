@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 
-const OwnerProfilePage = () => {
+const TenantProfilePage = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ const OwnerProfilePage = () => {
       navigate("/login");
     } else {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "owner") {
+      if (parsedUser.role !== "customer") {
         navigate("/");
       } else {
         setUser(parsedUser);
@@ -58,7 +58,7 @@ const OwnerProfilePage = () => {
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title text-3xl">
-              Owner Profile - {user.name}! 👋
+              My Profile - {user.name}! 👋
             </h2>
             <div className="divider"></div>
             <div className="space-y-2">
@@ -67,7 +67,7 @@ const OwnerProfilePage = () => {
               </p>
               <p>
                 <span className="font-semibold">Role:</span>{" "}
-                <span className="badge badge-success badge-lg capitalize">
+                <span className="badge badge-primary badge-lg capitalize">
                   {user.role}
                 </span>
               </p>
@@ -78,30 +78,30 @@ const OwnerProfilePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title">My Properties</h2>
-              <p>Manage your listed properties</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-primary btn-sm">Manage</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Add Property</h2>
-              <p>List a new property</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-primary btn-sm">Add New</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Bookings</h2>
-              <p>View property bookings</p>
+              <h2 className="card-title">My Bookings</h2>
+              <p>View your current bookings</p>
               <div className="card-actions justify-end">
                 <button className="btn btn-primary btn-sm">View</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title">Favorites</h2>
+              <p>Your saved properties</p>
+              <div className="card-actions justify-end">
+                <button className="btn btn-primary btn-sm">View</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title">Messages</h2>
+              <p>Check your messages</p>
+              <div className="card-actions justify-end">
+                <button className="btn btn-primary btn-sm">Open</button>
               </div>
             </div>
           </div>
@@ -111,4 +111,4 @@ const OwnerProfilePage = () => {
   );
 };
 
-export default OwnerProfilePage;
+export default TenantProfilePage;
