@@ -11,26 +11,53 @@ const generateToken = (id) => {
 // ---------------- REGISTER ----------------
 export async function registerUser(req, res) {
   try {
-    const { name, email, password, role } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      phone,
+      gender,
+      occupation,
+      dateOfBirth,
+      bio,
+    } = req.body;
 
-    // validation
+    // Basic validation
     if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ message: "Name, email, password, and role are required" });
     }
 
-    // check existing user
+    // Role-specific validation
+    if (!phone) {
+      return res.status(400).json({ message: "Phone number is required" });
+    }
+
+    if (!gender) {
+      return res.status(400).json({ message: "Gender is required" });
+    }
+
+    // Check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // create user
+    // Create user with all provided information
     const newUser = new User({
       name,
       email,
       password,
       role,
+      phone,
+      gender,
+      occupation: occupation || "",
+      dateOfBirth: dateOfBirth || null,
+      bio: bio || "",
     });
+
     await newUser.save();
 
     const token = generateToken(newUser._id);
@@ -43,6 +70,11 @@ export async function registerUser(req, res) {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
+        phone: newUser.phone,
+        gender: newUser.gender,
+        occupation: newUser.occupation,
+        dateOfBirth: newUser.dateOfBirth,
+        bio: newUser.bio,
       },
     });
   } catch (error) {
@@ -56,13 +88,29 @@ export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
 
-    // find user
+    // Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // compare password
+    // Check if user is suspended
+    if (user.isSuspended) {
+      if (user.suspendedUntil && user.suspendedUntil > new Date()) {
+        return res.status(403).json({
+          message: `Account suspended until ${user.suspendedUntil.toLocaleDateString()}`,
+        });
+      } else if (user.suspendedUntil && user.suspendedUntil <= new Date()) {
+        // Auto-unsuspend if suspension period has passed
+        user.isSuspended = false;
+        user.suspendedUntil = null;
+        await user.save();
+      } else {
+        return res.status(403).json({ message: "Account is suspended" });
+      }
+    }
+
+    // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -78,6 +126,10 @@ export async function loginUser(req, res) {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        gender: user.gender,
+        occupation: user.occupation,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
