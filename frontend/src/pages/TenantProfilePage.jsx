@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 
@@ -7,20 +7,11 @@ const TenantProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
-
-    if (!token) {
-      navigate("/login");
-    } else {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "tenant") {
-        navigate("/");
-      } else {
-        setUser(parsedUser);
-      }
+    if (userData) {
+      setUser(JSON.parse(userData));
     }
-  }, [navigate]);
+  }, []);
 
   const handleLogout = async () => {
     try {
