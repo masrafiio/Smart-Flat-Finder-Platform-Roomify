@@ -1,9 +1,9 @@
 import express from "express";
 import authRoutes from "./routes/authRoutes.js";
 // import adminRoutes from "./routes/adminRoutes.js";
-// import landlordRoutes from "./routes/landlordRoutes.js";
+import landlordRoutes from "./routes/landlordRoutes.js";
 // import tenantRoutes from "./routes/tenantRoutes.js";
-// import propertyRoutes from "./routes/propertyRoutes.js";
+import propertyRoutes from "./routes/propertyRoutes.js";
 // import bookingRoutes from "./routes/bookingRoutes.js";
 // import reviewRoutes from "./routes/reviewRoutes.js";
 // import forumRoutes from "./routes/forumRoutes.js";
@@ -26,9 +26,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/authentication", authRoutes);
 // app.use("/api/admin", adminRoutes);
-// app.use("/api/landlord", landlordRoutes);
+app.use("/api/landlord", landlordRoutes);
 // app.use("/api/tenant", tenantRoutes);
-// app.use("/api/property", propertyRoutes);
+app.use("/api/property", propertyRoutes);
 // app.use("/api/booking", bookingRoutes);
 // app.use("/api/review", reviewRoutes);
 // app.use("/api/forum", forumRoutes);
