@@ -1,6 +1,9 @@
 import express from "express";
 import authRoutes from "./routes/authRoutes.js";
 // import adminRoutes from "./routes/adminRoutes.js";
+// import landlordRoutes from "./routes/landlordRoutes.js";
+import tenantRoutes from "./routes/tenantRoutes.js";
+// import propertyRoutes from "./routes/propertyRoutes.js";
 import landlordRoutes from "./routes/landlordRoutes.js";
 // import tenantRoutes from "./routes/tenantRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
@@ -26,6 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/authentication", authRoutes);
 // app.use("/api/admin", adminRoutes);
+// app.use("/api/landlord", landlordRoutes);
+app.use("/api/tenant", tenantRoutes);
+// app.use("/api/property", propertyRoutes);
 app.use("/api/landlord", landlordRoutes);
 // app.use("/api/tenant", tenantRoutes);
 app.use("/api/property", propertyRoutes);
