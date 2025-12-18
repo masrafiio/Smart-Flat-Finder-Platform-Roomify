@@ -4,6 +4,9 @@ import authRoutes from "./routes/authRoutes.js";
 // import landlordRoutes from "./routes/landlordRoutes.js";
 import tenantRoutes from "./routes/tenantRoutes.js";
 // import propertyRoutes from "./routes/propertyRoutes.js";
+import landlordRoutes from "./routes/landlordRoutes.js";
+// import tenantRoutes from "./routes/tenantRoutes.js";
+import propertyRoutes from "./routes/propertyRoutes.js";
 // import bookingRoutes from "./routes/bookingRoutes.js";
 // import reviewRoutes from "./routes/reviewRoutes.js";
 // import forumRoutes from "./routes/forumRoutes.js";
@@ -11,7 +14,7 @@ import tenantRoutes from "./routes/tenantRoutes.js";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path"
+import path from "path";
 
 dotenv.config();
 
@@ -20,7 +23,7 @@ const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
 
 // Middleware
-app.use(cors({origin: "http://localhost:5173",}));
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,11 +32,13 @@ app.use("/api/authentication", authRoutes);
 // app.use("/api/landlord", landlordRoutes);
 app.use("/api/tenant", tenantRoutes);
 // app.use("/api/property", propertyRoutes);
+app.use("/api/landlord", landlordRoutes);
+// app.use("/api/tenant", tenantRoutes);
+app.use("/api/property", propertyRoutes);
 // app.use("/api/booking", bookingRoutes);
 // app.use("/api/review", reviewRoutes);
 // app.use("/api/forum", forumRoutes);
 // app.use("/api/notification", notificationRoutes);
-
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
