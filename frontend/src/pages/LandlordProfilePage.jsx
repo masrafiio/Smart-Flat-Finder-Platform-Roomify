@@ -69,6 +69,7 @@ const LandlordProfilePage = () => {
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
     if (!token) {
       navigate("/login");
