@@ -11,7 +11,7 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
-import path from "path"
+import path from "path";
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
 
 // Middleware
-app.use(cors({origin: "http://localhost:5173",}));
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,7 +33,6 @@ app.use("/api/property", propertyRoutes);
 // app.use("/api/review", reviewRoutes);
 // app.use("/api/forum", forumRoutes);
 // app.use("/api/notification", notificationRoutes);
-
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
