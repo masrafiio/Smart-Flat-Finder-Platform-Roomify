@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 
@@ -7,12 +7,8 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
-
-    if (!token) {
-      navigate("/login");
-    } else {
+    if (userData) {
       const parsedUser = JSON.parse(userData);
 
       // Redirect admin to their dashboard
@@ -38,9 +34,9 @@ const HomePage = () => {
   };
 
   const goToProfile = () => {
-    if (user.role === "tenant") {
+    if (user?.role === "tenant") {
       navigate("/tenant-profile");
-    } else if (user.role === "landlord") {
+    } else if (user?.role === "landlord") {
       navigate("/landlord-profile");
     }
   };

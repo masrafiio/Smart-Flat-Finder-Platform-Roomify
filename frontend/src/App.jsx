@@ -5,16 +5,46 @@ import RegisterPage from "./pages/RegisterPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import TenantProfilePage from "./pages/TenantProfilePage";
 import LandlordProfilePage from "./pages/LandlordProfilePage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/admin-dashboard" element={<AdminDashboard />} />
-      <Route path="/tenant-profile" element={<TenantProfilePage />} />
-      <Route path="/landlord-profile" element={<LandlordProfilePage />} />
+
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-dashboard"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tenant-profile"
+        element={
+          <ProtectedRoute requiredRole="tenant">
+            <TenantProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/landlord-profile"
+        element={
+          <ProtectedRoute requiredRole="landlord">
+            <LandlordProfilePage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };
