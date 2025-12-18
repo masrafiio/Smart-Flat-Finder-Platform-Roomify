@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 import {
@@ -68,7 +68,6 @@ const LandlordProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
     if (!token) {
@@ -82,7 +81,7 @@ const LandlordProfilePage = () => {
         fetchData();
       }
     }
-  }, [navigate]);
+  }, []);
 
   const fetchData = async () => {
     try {
