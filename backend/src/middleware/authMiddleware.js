@@ -5,6 +5,7 @@ export const protect = async (req, res, next) => {
   try {
     let token;
 
+    // Check if token exists in Authorization header
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -13,36 +14,47 @@ export const protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Not authorized" });
+      return res.status(401).json({ message: "Not authorized, no token" });
     }
 
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Get user from token
     req.user = await User.findById(decoded.id).select("-password");
 
     if (!req.user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
 
+    // Check if user is suspended
     if (req.user.isSuspended) {
-      return res
-        .status(403)
-        .json({ success: false, message: "Account is suspended" });
+      if (req.user.suspendedUntil && req.user.suspendedUntil > new Date()) {
+        return res.status(403).json({
+          message: `Account suspended until ${req.user.suspendedUntil.toLocaleDateString()}`,
+        });
+      } else if (req.user.isSuspended) {
+        return res.status(403).json({
+          message: "Account is permanently suspended",
+        });
+      }
     }
 
     next();
   } catch (error) {
-    res.status(401).json({ success: false, message: "Not authorized" });
+    console.error("Auth middleware error:", error);
+    return res.status(401).json({ message: "Not authorized, token failed" });
   }
 };
 
-export const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+// Middleware to check if user has specific role
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: `Role ${req.user.role} is not authorized` });
+    }
     next();
-  } else {
-    res.status(403).json({ success: false, message: "Admin access required" });
-  }
+  };
 };

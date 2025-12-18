@@ -24,7 +24,7 @@ const propertySchema = new mongoose.Schema(
       zipCode: String,
       country: { type: String, default: "USA" },
     },
-    coordinates: { type: [Number], default: [0, 0] }, // [longitude, latitude]
+    googleMapsLink: { type: String, default: "" },
 
     // Pricing
     rent: { type: Number, required: true },
