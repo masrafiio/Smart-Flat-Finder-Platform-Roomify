@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// Protect routes - verify JWT token
 export const protect = async (req, res, next) => {
   try {
     let token;
@@ -32,8 +31,11 @@ export const protect = async (req, res, next) => {
     if (req.user.isSuspended) {
       if (req.user.suspendedUntil && req.user.suspendedUntil > new Date()) {
         return res.status(403).json({
-          message: "Account suspended",
-          suspendedUntil: req.user.suspendedUntil,
+          message: `Account suspended until ${req.user.suspendedUntil.toLocaleDateString()}`,
+        });
+      } else if (req.user.isSuspended) {
+        return res.status(403).json({
+          message: "Account is permanently suspended",
         });
       }
     }
@@ -45,13 +47,13 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// Restrict to specific roles
+// Middleware to check if user has specific role
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        message: `Role '${req.user.role}' is not authorized to access this route`,
-      });
+      return res
+        .status(403)
+        .json({ message: `Role ${req.user.role} is not authorized` });
     }
     next();
   };
