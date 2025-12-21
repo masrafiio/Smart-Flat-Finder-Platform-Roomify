@@ -7,6 +7,7 @@ import {
   addToWishlist,
   removeFromWishlist,
   getViewedProperties,
+  getUserProfile,
 } from "../controllers/tenantController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -14,6 +15,7 @@ const router = express.Router();
 
 // All routes are protected and require authentication
 router.get("/profile", protect, getTenantProfile);
+router.get("/profile/:userId", protect, getUserProfile);
 router.put("/profile", protect, updateTenantProfile);
 router.get("/bookings", protect, getTenantBookings);
 router.get("/wishlist", protect, getTenantWishlist);
