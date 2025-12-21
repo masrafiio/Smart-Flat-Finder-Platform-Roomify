@@ -3,6 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import {
+  getPropertyReviews,
+  createPropertyReview,
+  rateUser,
+  getMyRatingForUser,
+} from "../api/reviewApi";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -11,11 +17,50 @@ const PropertyDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Review states
+  const [reviews, setReviews] = useState([]);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Rating states for landlord
+  const [landlordRating, setLandlordRating] = useState(0);
+  const [myRating, setMyRating] = useState(null);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+    fetchPropertyDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   const fetchPropertyDetails = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/property/${id}`);
       setProperty(response.data);
+
+      // Fetch reviews
+      await fetchReviews();
+
+      // Fetch my rating for landlord if user is tenant
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.role === "tenant" && response.data.landlord) {
+          try {
+            const rating = await getMyRatingForUser(response.data.landlord._id);
+            setMyRating(rating);
+            setLandlordRating(rating.rating);
+          } catch {
+            // User hasn't rated yet
+            setMyRating(null);
+          }
+        }
+      }
     } catch (err) {
       console.error("Error fetching property:", err);
       setError(
@@ -26,10 +71,63 @@ const PropertyDetails = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPropertyDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  const fetchReviews = async () => {
+    try {
+      const data = await getPropertyReviews(id);
+      setReviews(data.reviews || []);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+    }
+  };
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!reviewComment.trim()) return;
+
+    setReviewLoading(true);
+    setError("");
+
+    try {
+      await createPropertyReview(id, reviewComment);
+      setReviewComment("");
+      await fetchReviews();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to post comment");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const handleSubmitRating = async (e) => {
+    e.preventDefault();
+    if (landlordRating === 0) {
+      setError("Please select a rating");
+      return;
+    }
+
+    setReviewLoading(true);
+    setError("");
+
+    try {
+      await rateUser({
+        userId: property.landlord._id,
+        rating: landlordRating,
+        propertyId: id,
+      });
+
+      // Refresh rating
+      const rating = await getMyRatingForUser(property.landlord._id);
+      setMyRating(rating);
+      setShowRatingForm(false);
+
+      // Refresh property to update landlord rating
+      await fetchPropertyDetails();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to submit rating");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -401,13 +499,173 @@ const PropertyDetails = () => {
                 </div>
               </div>
             </div>
+
+            {/* Rate Landlord - Only for Tenants */}
+            {user && user.role === "tenant" && property.landlord && (
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body">
+                  <h2 className="card-title">Rate This Landlord</h2>
+
+                  {myRating && !showRatingForm ? (
+                    <div>
+                      <div className="alert alert-success mb-4">
+                        <span>
+                          You rated this landlord {myRating.rating}/5 ★
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setShowRatingForm(true)}
+                        className="btn btn-outline btn-sm btn-block"
+                      >
+                        Update Rating
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmitRating}>
+                      <div className="form-control mb-4">
+                        <label className="label">
+                          <span className="label-text">Your Rating</span>
+                        </label>
+                        <div className="flex gap-2 justify-center">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setLandlordRating(star)}
+                              className={`text-3xl ${
+                                star <= landlordRating
+                                  ? "text-yellow-500"
+                                  : "text-gray-300"
+                              }`}
+                            >
+                              ★
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          className="btn btn-primary flex-1"
+                          disabled={reviewLoading || landlordRating === 0}
+                        >
+                          {reviewLoading ? (
+                            <span className="loading loading-spinner"></span>
+                          ) : myRating ? (
+                            "Update"
+                          ) : (
+                            "Submit"
+                          )}
+                        </button>
+                        {myRating && showRatingForm && (
+                          <button
+                            type="button"
+                            onClick={() => setShowRatingForm(false)}
+                            className="btn btn-ghost"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Property Comments Section - Full Width Below */}
+        <div className="card bg-base-100 shadow-xl mt-6">
+          <div className="card-body">
+            <h2 className="card-title mb-4">
+              Property Comments ({reviews.length})
+            </h2>
+
+            {/* Comment Form - Only for logged-in users */}
+            {user && (
+              <form onSubmit={handleSubmitComment} className="mb-6">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">
+                      Share your thoughts about this property
+                    </span>
+                  </label>
+                  <textarea
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    className="textarea textarea-bordered h-24"
+                    placeholder="Write a comment..."
+                    required
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-4"
+                  disabled={reviewLoading || !reviewComment.trim()}
+                >
+                  {reviewLoading ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : (
+                    "Post Comment"
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="alert alert-error mb-4">
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Comments List */}
+            {reviews.length === 0 ? (
+              <div className="text-center py-8 opacity-50">
+                <p>No comments yet. Be the first to share your thoughts!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review._id} className="card bg-base-200">
+                    <div className="card-body p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="avatar placeholder">
+                          <div className="bg-primary text-primary-content rounded-full w-10">
+                            <span className="text-sm">
+                              {review.reviewer.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold">
+                              {review.reviewer.name}
+                            </p>
+                            <span className="text-xs opacity-70">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-sm opacity-70 capitalize">
+                            {review.reviewer.role}
+                          </p>
+                          <p className="mt-2">{review.comment}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
 
 export default PropertyDetails;
-
-<Footer />;
