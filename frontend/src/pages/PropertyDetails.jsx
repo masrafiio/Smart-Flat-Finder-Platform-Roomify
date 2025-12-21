@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/axios";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -16,7 +18,9 @@ const PropertyDetails = () => {
       setProperty(response.data);
     } catch (err) {
       console.error("Error fetching property:", err);
-      setError(err.response?.data?.message || "Failed to fetch property details");
+      setError(
+        err.response?.data?.message || "Failed to fetch property details"
+      );
     } finally {
       setLoading(false);
     }
@@ -29,32 +33,32 @@ const PropertyDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="min-h-screen bg-base-200">
+        <Navbar />
+        <div className="flex items-center justify-center py-20">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (error || !property) {
     return (
-      <div className="min-h-screen bg-base-200">
-        <div className="navbar bg-base-100 shadow-lg">
-          <div className="flex-1">
-            <a onClick={() => navigate("/")} className="btn btn-ghost text-xl">
-              🏠 Roomify
-            </a>
-          </div>
-          <div className="flex-none">
-            <button onClick={() => navigate("/")} className="btn btn-ghost">
-              Back to Home
-            </button>
-          </div>
-        </div>
-        <div className="container mx-auto p-8">
+      <div className="min-h-screen bg-base-200 flex flex-col">
+        <Navbar />
+        <div className="flex-grow container mx-auto p-8">
           <div className="alert alert-error">
             <span>{error || "Property not found"}</span>
           </div>
+          <button
+            onClick={() => navigate("/")}
+            className="btn btn-primary mt-4"
+          >
+            Back to Home
+          </button>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -63,36 +67,23 @@ const PropertyDetails = () => {
   const getEmbedUrl = (link) => {
     if (!link) return null;
     // If it's already an embed URL, return it
-    if (link.includes('/embed')) return link;
+    if (link.includes("/embed")) return link;
     // Convert regular Google Maps link to embed URL
-    if (link.includes('google.com/maps')) {
-      return link.replace('/maps?', '/maps/embed?');
+    if (link.includes("google.com/maps")) {
+      return link.replace("/maps?", "/maps/embed?");
     }
     return link;
   };
-  
-  const googleMapsUrl = property.googleMapsLink ? getEmbedUrl(property.googleMapsLink) : null;
+
+  const googleMapsUrl = property.googleMapsLink
+    ? getEmbedUrl(property.googleMapsLink)
+    : null;
 
   return (
-    <div className="min-h-screen bg-base-200">
-      {/* Navbar */}
-      <div className="navbar bg-base-100 shadow-lg">
-        <div className="flex-1">
-          <a onClick={() => navigate("/")} className="btn btn-ghost text-xl">
-            🏠 Roomify
-          </a>
-        </div>
-        <div className="flex-none gap-2">
-          <button onClick={() => navigate(-1)} className="btn btn-ghost">
-            ← Back
-          </button>
-          <button onClick={() => navigate("/")} className="btn btn-ghost">
-            Home
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <Navbar />
 
-      <div className="container mx-auto p-4 md:p-8">
+      <div className="flex-grow container mx-auto p-4 md:p-8">
         {/* Property Header */}
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
@@ -101,21 +92,30 @@ const PropertyDetails = () => {
                 <h1 className="text-3xl font-bold">{property.title}</h1>
                 <p className="text-lg opacity-70 mt-2">
                   📍 {property.address.street && `${property.address.street}, `}
-                  {property.address.city}, {property.address.state} {property.address.zipCode}
+                  {property.address.city}, {property.address.state}{" "}
+                  {property.address.zipCode}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-bold text-primary">${property.rent}</p>
+                <p className="text-3xl font-bold text-primary">
+                  ${property.rent}
+                </p>
                 <p className="text-sm opacity-70">per month</p>
               </div>
             </div>
 
             {/* Status Badges */}
             <div className="flex gap-2 mt-4">
-              <span className={`badge ${property.isAvailable ? "badge-success" : "badge-error"}`}>
+              <span
+                className={`badge ${
+                  property.isAvailable ? "badge-success" : "badge-error"
+                }`}
+              >
                 {property.isAvailable ? "Available" : "Not Available"}
               </span>
-              <span className="badge badge-outline capitalize">{property.propertyType}</span>
+              <span className="badge badge-outline capitalize">
+                {property.propertyType}
+              </span>
               {property.verificationStatus === "approved" && (
                 <span className="badge badge-info">✓ Verified</span>
               )}
@@ -130,13 +130,17 @@ const PropertyDetails = () => {
               <h2 className="card-title">Photos</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {property.images.map((image, index) => (
-                  <div key={index} className="aspect-video bg-base-300 rounded-lg overflow-hidden">
+                  <div
+                    key={index}
+                    className="aspect-video bg-base-300 rounded-lg overflow-hidden"
+                  >
                     <img
                       src={image}
                       alt={`Property ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Available";
+                        e.target.src =
+                          "https://via.placeholder.com/400x300?text=Image+Not+Available";
                       }}
                     />
                   </div>
@@ -164,11 +168,15 @@ const PropertyDetails = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="stat bg-base-200 rounded-box">
                     <div className="stat-title">Total Rooms</div>
-                    <div className="stat-value text-primary">{property.totalRooms}</div>
+                    <div className="stat-value text-primary">
+                      {property.totalRooms}
+                    </div>
                   </div>
                   <div className="stat bg-base-200 rounded-box">
                     <div className="stat-title">Available</div>
-                    <div className="stat-value text-success">{property.availableRooms}</div>
+                    <div className="stat-value text-success">
+                      {property.availableRooms}
+                    </div>
                   </div>
                   <div className="stat bg-base-200 rounded-box">
                     <div className="stat-title">Occupied</div>
@@ -224,7 +232,10 @@ const PropertyDetails = () => {
                   <h2 className="card-title">Amenities</h2>
                   <div className="flex flex-wrap gap-2">
                     {property.amenities.map((amenity, index) => (
-                      <span key={index} className="badge badge-lg badge-outline">
+                      <span
+                        key={index}
+                        className="badge badge-lg badge-outline"
+                      >
                         {amenity}
                       </span>
                     ))}
@@ -276,14 +287,18 @@ const PropertyDetails = () => {
                   {property.securityDeposit > 0 && (
                     <div className="flex justify-between">
                       <span>Security Deposit</span>
-                      <span className="font-bold">${property.securityDeposit}</span>
+                      <span className="font-bold">
+                        ${property.securityDeposit}
+                      </span>
                     </div>
                   )}
                   <div className="divider my-2"></div>
                   {property.availableFrom && (
                     <div className="flex justify-between text-sm">
                       <span>Available From</span>
-                      <span>{new Date(property.availableFrom).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(property.availableFrom).toLocaleDateString()}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -310,11 +325,15 @@ const PropertyDetails = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="font-bold text-lg">{property.landlord.name}</p>
+                      <p className="font-bold text-lg">
+                        {property.landlord.name}
+                      </p>
                       {property.landlord.averageRating > 0 && (
                         <div className="flex items-center gap-1">
                           <span className="text-yellow-500">★</span>
-                          <span>{property.landlord.averageRating.toFixed(1)}</span>
+                          <span>
+                            {property.landlord.averageRating.toFixed(1)}
+                          </span>
                           <span className="text-xs opacity-70">
                             ({property.landlord.totalRatings} reviews)
                           </span>
@@ -325,14 +344,20 @@ const PropertyDetails = () => {
                   <div className="space-y-2">
                     <p className="text-sm">
                       <span className="opacity-70">Email:</span>{" "}
-                      <a href={`mailto:${property.landlord.email}`} className="link">
+                      <a
+                        href={`mailto:${property.landlord.email}`}
+                        className="link"
+                      >
                         {property.landlord.email}
                       </a>
                     </p>
                     {property.landlord.phone && (
                       <p className="text-sm">
                         <span className="opacity-70">Phone:</span>{" "}
-                        <a href={`tel:${property.landlord.phone}`} className="link">
+                        <a
+                          href={`tel:${property.landlord.phone}`}
+                          className="link"
+                        >
                           {property.landlord.phone}
                         </a>
                       </p>
@@ -361,7 +386,9 @@ const PropertyDetails = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="opacity-70">Reviews</span>
-                        <span className="font-semibold">{property.totalReviews}</span>
+                        <span className="font-semibold">
+                          {property.totalReviews}
+                        </span>
                       </div>
                     </>
                   )}
@@ -382,3 +409,5 @@ const PropertyDetails = () => {
 };
 
 export default PropertyDetails;
+
+<Footer />;
