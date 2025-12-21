@@ -287,33 +287,41 @@ const PropertyDetails = () => {
             </div>
 
             {/* Current Tenants */}
-            {property.currentTenants && property.currentTenants.length > 0 && (
+            {property.tenants && property.tenants.length > 0 && (
               <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title">
-                    Current Tenants ({property.currentTenants.length})
+                    Current Tenants ({property.tenants.length})
                   </h2>
                   <p className="text-sm opacity-70 mb-4">
                     Get to know who you'll be living with
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {property.currentTenants.map((tenant, index) => (
-                      <div key={index} className="card bg-base-200">
+                    {property.tenants.map((tenant) => (
+                      <div key={tenant._id} className="card bg-base-200">
                         <div className="card-body p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="avatar placeholder">
-                              <div className="bg-primary text-primary-content rounded-full w-12">
-                                <span className="text-xl">
-                                  {tenant.name.charAt(0).toUpperCase()}
-                                </span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="avatar placeholder">
+                                <div className="bg-primary text-primary-content rounded-full w-12">
+                                  <span className="text-xl">
+                                    {tenant.name.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="font-semibold">{tenant.name}</p>
+                                <p className="text-xs opacity-70">
+                                  {tenant.gender} • {tenant.occupation}
+                                </p>
                               </div>
                             </div>
-                            <div>
-                              <p className="font-semibold">{tenant.name}</p>
-                              <p className="text-xs opacity-70">
-                                {tenant.gender} • {tenant.occupation}
-                              </p>
-                            </div>
+                            <button
+                              onClick={() => navigate(`/user/${tenant._id}`)}
+                              className="btn btn-sm btn-primary"
+                            >
+                              View Profile
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -400,8 +408,14 @@ const PropertyDetails = () => {
                     </div>
                   )}
                 </div>
-                <button className="btn btn-primary btn-block mt-4">
-                  Contact Landlord
+                <button
+                  onClick={() => navigate("/booking", { state: { property } })}
+                  className="btn btn-primary btn-block mt-4"
+                  disabled={
+                    !property.isAvailable || property.availableRooms === 0
+                  }
+                >
+                  Request Booking
                 </button>
                 <button className="btn btn-outline btn-block">
                   Add to Wishlist
@@ -461,6 +475,12 @@ const PropertyDetails = () => {
                       </p>
                     )}
                   </div>
+                  <button
+                    onClick={() => navigate(`/user/${property.landlord._id}`)}
+                    className="btn btn-outline btn-sm mt-4"
+                  >
+                    View Profile
+                  </button>
                 </div>
               </div>
             )}

@@ -20,23 +20,32 @@ const bookingSchema = new mongoose.Schema(
 
     bookingType: { type: String, enum: ["booking", "visit"], required: true },
 
-    // Visit slots
+    // Visit slots (for visit type)
     proposedDate: Date,
-    proposedTime: String,
+    approvedVisitTime: String, // Time selected by landlord when accepting (9am-5pm)
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "cancelled", "completed"],
+      enum: [
+        "pending",
+        "approved",
+        "rejected",
+        "cancelled",
+        "completed",
+        "active",
+      ],
       default: "pending",
     },
 
-    // Booking details
+    // Booking details (for booking type)
     moveInDate: Date,
-    leaseDuration: Number,
 
-    tenantNotes: String,
-    landlordNotes: String,
-    rejectionReason: String,
+    // Property status for active bookings
+    propertyStatus: {
+      type: String,
+      enum: ["active", "left"],
+      default: "active",
+    },
   },
   { timestamps: true }
 );

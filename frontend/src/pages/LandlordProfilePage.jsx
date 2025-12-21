@@ -12,16 +12,27 @@ import {
   addCurrentTenant,
   removeCurrentTenant,
 } from "../api/landlordApi";
+import {
+  getLandlordBookings,
+  acceptBooking,
+  rejectBooking,
+} from "../api/bookingApi";
 
 const LandlordProfilePage = () => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [properties, setProperties] = useState([]);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, profile, properties, addProperty
+  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, profile, properties, addProperty, bookings
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Bookings state
+  const [bookings, setBookings] = useState([]);
+  const [bookingFilter, setBookingFilter] = useState("pending");
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [approvedVisitTime, setApprovedVisitTime] = useState("");
 
   // Profile edit state
   const [profileForm, setProfileForm] = useState({
@@ -82,6 +93,7 @@ const LandlordProfilePage = () => {
         fetchData();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
@@ -274,6 +286,87 @@ const LandlordProfilePage = () => {
     }
   };
 
+  // Booking functions
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const filters = bookingFilter !== "all" ? { status: bookingFilter } : {};
+      const data = await getLandlordBookings(filters);
+      setBookings(data.bookings || []);
+    } catch {
+      setError("Failed to fetch bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "bookings") {
+      fetchBookings();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, bookingFilter]);
+
+  const handleAcceptBooking = async (booking) => {
+    setError("");
+    setSuccess("");
+
+    // For visit type, validate time selection
+    if (booking.bookingType === "visit" && !approvedVisitTime) {
+      setError("Please select a visit time");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = {};
+      if (booking.bookingType === "visit") {
+        data.approvedVisitTime = approvedVisitTime;
+      }
+
+      const response = await acceptBooking(booking._id, data);
+      setSuccess(response.message);
+      setSelectedBooking(null);
+      setApprovedVisitTime("");
+      document.getElementById("accept_modal").close();
+      await fetchBookings();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to accept booking");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectBooking = async (bookingId) => {
+    setError("");
+    setSuccess("");
+
+    try {
+      setLoading(true);
+      const response = await rejectBooking(bookingId);
+      setSuccess(response.message);
+      setSelectedBooking(null);
+      document.getElementById("reject_modal").close();
+      await fetchBookings();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to reject booking");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: "badge-warning",
+      approved: "badge-success",
+      active: "badge-info",
+      rejected: "badge-error",
+      cancelled: "badge-ghost",
+      completed: "badge-neutral",
+    };
+    return badges[status] || "badge-ghost";
+  };
+
   if (!user) return null;
 
   return (
@@ -372,6 +465,12 @@ const LandlordProfilePage = () => {
             }}
           >
             {editingProperty ? "Edit Property" : "Add Property"}
+          </button>
+          <button
+            className={`tab ${activeTab === "bookings" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("bookings")}
+          >
+            Bookings
           </button>
         </div>
 
@@ -1019,6 +1118,391 @@ const LandlordProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* Bookings Tab */}
+      {activeTab === "bookings" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Booking Requests</h2>
+          </div>
+
+          {/* Filter tabs */}
+          <div className="tabs tabs-boxed">
+            <button
+              className={`tab ${bookingFilter === "all" ? "tab-active" : ""}`}
+              onClick={() => setBookingFilter("all")}
+            >
+              All
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "pending" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("pending")}
+            >
+              Pending
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "approved" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("approved")}
+            >
+              Approved
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "active" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("active")}
+            >
+              Active
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "rejected" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("rejected")}
+            >
+              Rejected
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "cancelled" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("cancelled")}
+            >
+              Cancelled
+            </button>
+            <button
+              className={`tab ${
+                bookingFilter === "completed" ? "tab-active" : ""
+              }`}
+              onClick={() => setBookingFilter("completed")}
+            >
+              Completed
+            </button>
+          </div>
+
+          {/* Bookings List */}
+          <div className="space-y-4">
+            {bookings.length === 0 ? (
+              <div className="alert">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="stroke-info shrink-0 w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>No bookings found</span>
+              </div>
+            ) : (
+              bookings.map((booking) => (
+                <div key={booking._id} className="card bg-base-200 shadow-xl">
+                  <div className="card-body">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="card-title">
+                          {booking.property?.title || "Property"}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm opacity-70">
+                            Tenant: {booking.tenant?.name || "Unknown"}
+                          </p>
+                          {booking.tenant?._id && (
+                            <button
+                              onClick={() =>
+                                navigate(`/user/${booking.tenant._id}`)
+                              }
+                              className="btn btn-xs btn-ghost"
+                            >
+                              View Profile
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-sm opacity-70">
+                          Email: {booking.tenant?.email || "N/A"}
+                        </p>
+                      </div>
+                      <div
+                        className={`badge ${getStatusBadge(booking.status)}`}
+                      >
+                        {booking.status}
+                      </div>
+                    </div>
+
+                    <div className="divider"></div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-semibold">Type</p>
+                        <p className="text-sm opacity-70">
+                          {booking.bookingType === "visit"
+                            ? "Property Visit"
+                            : "Room Booking"}
+                        </p>
+                      </div>
+
+                      {booking.bookingType === "visit" && (
+                        <>
+                          <div>
+                            <p className="text-sm font-semibold">
+                              Proposed Date
+                            </p>
+                            <p className="text-sm opacity-70">
+                              {new Date(
+                                booking.proposedDate
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {booking.approvedVisitTime && (
+                            <div>
+                              <p className="text-sm font-semibold">
+                                Approved Time
+                              </p>
+                              <p className="text-sm opacity-70">
+                                {booking.approvedVisitTime}
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {booking.bookingType === "booking" && (
+                        <>
+                          <div>
+                            <p className="text-sm font-semibold">
+                              Move-in Date
+                            </p>
+                            <p className="text-sm opacity-70">
+                              {new Date(
+                                booking.moveInDate
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">
+                              Lease Duration
+                            </p>
+                            <p className="text-sm opacity-70">
+                              {booking.leaseDuration} months
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {booking.tenantNotes && (
+                      <div>
+                        <p className="text-sm font-semibold">Tenant Notes</p>
+                        <p className="text-sm opacity-70">
+                          {booking.tenantNotes}
+                        </p>
+                      </div>
+                    )}
+
+                    {booking.status === "pending" && (
+                      <div className="card-actions justify-end mt-4">
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            document.getElementById("accept_modal").showModal();
+                          }}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="btn btn-error btn-sm"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            document.getElementById("reject_modal").showModal();
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="text-xs opacity-50 mt-2">
+                      Created: {new Date(booking.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Accept Booking Modal */}
+      <dialog id="accept_modal" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4">Accept Booking Request</h3>
+
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="alert alert-info">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="stroke-current shrink-0 w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>
+                  {selectedBooking.bookingType === "visit"
+                    ? "Accepting a visit request allows the tenant to visit your property."
+                    : "Accepting a booking request will add the tenant to your property."}
+                </span>
+              </div>
+
+              {selectedBooking.bookingType === "visit" && (
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">
+                      Approved Visit Time (9 AM - 5 PM) *
+                    </span>
+                  </label>
+                  <input
+                    type="time"
+                    className="input input-bordered"
+                    value={approvedVisitTime}
+                    onChange={(e) => setApprovedVisitTime(e.target.value)}
+                    min="09:00"
+                    max="17:00"
+                    required
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">
+                      Select a time between 9:00 AM and 5:00 PM
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {error && (
+                <div className="alert alert-error">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={() => handleAcceptBooking(selectedBooking)}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Confirm Accept"}
+                </button>
+                <form method="dialog">
+                  <button className="btn">Cancel</button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </dialog>
+
+      {/* Reject Booking Modal */}
+      <dialog id="reject_modal" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4">Reject Booking Request</h3>
+
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="alert alert-warning">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="stroke-current shrink-0 h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <span>
+                  Are you sure you want to reject this booking request?
+                </span>
+              </div>
+
+              {error && (
+                <div className="alert alert-error">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn btn-error"
+                  onClick={() => handleRejectBooking(selectedBooking._id)}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Confirm Reject"}
+                </button>
+                <form method="dialog">
+                  <button className="btn">Cancel</button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </dialog>
 
       {/* Add Tenant Modal */}
       {addingTenantTo && (
