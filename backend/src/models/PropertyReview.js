@@ -12,9 +12,7 @@ const propertyReviewSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
-    rating: { type: Number, min: 1, max: 5, required: true },
-    comment: String,
+    comment: { type: String, required: true },
   },
   { timestamps: true }
 );
