@@ -37,7 +37,15 @@ const propertySchema = new mongoose.Schema(
     amenities: [String],
     images: [String],
 
-    // Current tenants info
+    // Current tenants - User references
+    tenants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    // Current tenants info (for display purposes)
     currentTenants: [
       {
         name: String,

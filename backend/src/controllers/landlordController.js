@@ -118,3 +118,26 @@ export const getLandlordStats = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Get landlord's properties by user ID (for viewing other landlord's properties)
+export const getLandlordPropertiesById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Verify the user is a landlord
+    const landlord = await User.findById(userId);
+    if (!landlord || landlord.role !== "landlord") {
+      return res.status(404).json({ message: "Landlord not found" });
+    }
+
+    const properties = await Property.find({
+      landlord: userId,
+      isPublished: true,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error("Error fetching landlord properties:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
