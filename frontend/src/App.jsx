@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import TenantProfilePage from "./pages/TenantProfilePage";
 import LandlordProfilePage from "./pages/LandlordProfilePage";
+import PropertyDetails from "./pages/PropertyDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -18,6 +19,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/property/:id"
+        element={
+          <ProtectedRoute>
+            <PropertyDetails />
           </ProtectedRoute>
         }
       />
