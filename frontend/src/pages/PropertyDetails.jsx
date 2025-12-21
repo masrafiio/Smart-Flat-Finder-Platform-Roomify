@@ -400,8 +400,14 @@ const PropertyDetails = () => {
                     </div>
                   )}
                 </div>
-                <button className="btn btn-primary btn-block mt-4">
-                  Contact Landlord
+                <button
+                  onClick={() => navigate("/booking", { state: { property } })}
+                  className="btn btn-primary btn-block mt-4"
+                  disabled={
+                    !property.isAvailable || property.availableRooms === 0
+                  }
+                >
+                  Request Booking
                 </button>
                 <button className="btn btn-outline btn-block">
                   Add to Wishlist

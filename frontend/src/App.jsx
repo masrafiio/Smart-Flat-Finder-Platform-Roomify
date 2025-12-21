@@ -6,6 +6,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TenantProfilePage from "./pages/TenantProfilePage";
 import LandlordProfilePage from "./pages/LandlordProfilePage";
 import PropertyDetails from "./pages/PropertyDetails";
+import BookingPage from "./pages/BookingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -51,6 +52,14 @@ const App = () => {
         element={
           <ProtectedRoute requiredRole="landlord">
             <LandlordProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/booking"
+        element={
+          <ProtectedRoute requiredRole="tenant">
+            <BookingPage />
           </ProtectedRoute>
         }
       />
