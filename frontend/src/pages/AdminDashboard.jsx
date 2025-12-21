@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
+import Navbar from "../components/Navbar";
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -97,13 +98,8 @@ const AdminDashboard = () => {
   const handleSuspendUser = async (userId) => {
     if (!confirm("Suspend this user?")) return;
 
-    const suspendedUntil = prompt("Suspend until (YYYY-MM-DD):");
-    if (!suspendedUntil) return;
-
     try {
-      await api.put(`/admin/users/${userId}/suspend`, {
-        suspendedUntil: new Date(suspendedUntil),
-      });
+      await api.put(`/admin/users/${userId}/suspend`);
       alert("User suspended");
       fetchUsers();
     } catch (error) {
@@ -208,18 +204,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/authentication/logout");
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
-    }
-  };
-
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === "users") fetchUsers();
@@ -232,37 +216,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-base-200">
-      {/* Navbar */}
-      <div className="navbar bg-base-100 shadow-lg">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">🏠 Roomify Admin</a>
-        </div>
-        <div className="flex-none gap-2">
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                <span className="text-xl">
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            </label>
-            <ul
-              tabIndex={0}
-              className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a className="justify-between">
-                  {user.name}
-                  <span className="badge badge-error">Admin</span>
-                </a>
-              </li>
-              <li>
-                <a onClick={handleLogout}>Logout</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="container mx-auto p-8">
         {/* Tabs */}
@@ -654,6 +608,12 @@ const AdminDashboard = () => {
                         {prop.address.city}, {prop.address.state}
                       </p>
                       <div className="card-actions justify-end mt-4">
+                        <button
+                          className="btn btn-info btn-sm"
+                          onClick={() => navigate(`/property/${prop._id}`)}
+                        >
+                          View Details
+                        </button>
                         <button
                           className="btn btn-error btn-sm"
                           onClick={() => handleRejectProperty(prop._id)}
