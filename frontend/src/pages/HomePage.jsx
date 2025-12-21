@@ -1,79 +1,346 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const HomePage = () => {
-  const [user, setUser] = useState(null);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [filters, setFilters] = useState({
+    search: "",
+    city: "",
+    propertyType: "",
+    minRent: "",
+    maxRent: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
-
       // Redirect admin to their dashboard
       if (parsedUser.role === "admin") {
         navigate("/admin-dashboard");
         return;
       }
-
-      setUser(parsedUser);
     }
+    fetchProperties();
   }, [navigate]);
 
-  const handleLogout = async () => {
+  const fetchProperties = async (filterParams = {}) => {
+    setLoading(true);
+    setError("");
     try {
-      await api.post("/authentication/logout");
+      const params = new URLSearchParams();
+      Object.entries(filterParams).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+
+      const response = await api.get(`/property?${params.toString()}`);
+      const allProperties = response.data.properties || [];
+
+      // Shuffle properties randomly
+      const shuffled = [...allProperties].sort(() => Math.random() - 0.5);
+
+      // Take only first 9 properties
+      const limitedProperties = shuffled.slice(0, 9);
+
+      setProperties(limitedProperties);
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error("Error fetching properties:", err);
+      setError("Failed to load properties. Please try again later.");
     } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
+      setLoading(false);
     }
   };
 
-  const goToProfile = () => {
-    if (user?.role === "tenant") {
-      navigate("/tenant-profile");
-    } else if (user?.role === "landlord") {
-      navigate("/landlord-profile");
-    }
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  if (!user) return null;
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchProperties(filters);
+  };
+
+  const handleReset = () => {
+    setFilters({
+      search: "",
+      city: "",
+      propertyType: "",
+      minRent: "",
+      maxRent: "",
+    });
+    fetchProperties();
+  };
+
+  const handlePropertyClick = (propertyId) => {
+    navigate(`/property/${propertyId}`);
+  };
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="navbar bg-base-100 shadow-lg">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">🏠 Roomify</a>
-        </div>
-        <div className="flex-none gap-2">
-          <button onClick={goToProfile} className="btn btn-primary">
-            My Profile
-          </button>
-          <button onClick={handleLogout} className="btn btn-error">
-            Logout
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <Navbar />
 
-      <div className="hero min-h-[80vh] bg-base-200">
+      {/* Hero Section */}
+      <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content py-20">
         <div className="hero-content text-center">
-          <div className="max-w-md">
-            <h1 className="text-5xl font-bold">Welcome to Roomify! 🏠</h1>
-            <p className="py-6">
-              Find your perfect room or list your property. Connect with
-              thousands of renters and property owners.
+          <div className="max-w-2xl">
+            <h1 className="text-5xl font-bold mb-6">
+              Find Your Perfect Home with Roomify 🏠
+            </h1>
+            <p className="text-lg mb-8">
+              Discover amazing properties, connect with verified landlords, and
+              find your ideal living space today!
             </p>
-            <div className="flex gap-4 justify-center">
-              <button className="btn btn-primary">Browse Properties</button>
-              <button className="btn btn-outline">Learn More</button>
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Search & Filter Section */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="card bg-base-100 shadow-lg p-6 mb-8">
+          <form onSubmit={handleSearch}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="form-control">
+                <input
+                  type="text"
+                  name="search"
+                  value={filters.search}
+                  onChange={handleFilterChange}
+                  placeholder="Search properties..."
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div className="form-control">
+                <input
+                  type="text"
+                  name="city"
+                  value={filters.city}
+                  onChange={handleFilterChange}
+                  placeholder="City"
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div className="form-control">
+                <select
+                  name="propertyType"
+                  value={filters.propertyType}
+                  onChange={handleFilterChange}
+                  className="select select-bordered w-full"
+                >
+                  <option value="">All Types</option>
+                  <option value="room">Room</option>
+                  <option value="flat">Flat</option>
+                  <option value="apartment">Apartment</option>
+                </select>
+              </div>
+
+              <div className="form-control">
+                <input
+                  type="number"
+                  name="minRent"
+                  value={filters.minRent}
+                  onChange={handleFilterChange}
+                  placeholder="Min Rent"
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div className="form-control">
+                <input
+                  type="number"
+                  name="maxRent"
+                  value={filters.maxRent}
+                  onChange={handleFilterChange}
+                  placeholder="Max Rent"
+                  className="input input-bordered w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-4">
+              <button type="submit" className="btn btn-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="btn btn-ghost"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Properties Section */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : error ? (
+          <div className="alert alert-error">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🏚️</div>
+            <h2 className="text-2xl font-bold mb-2">No Properties Found</h2>
+            <p className="text-base-content/70">
+              Try adjusting your filters or check back later for new listings.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">
+                Available Properties ({properties.length})
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {properties.map((property) => (
+                <div
+                  key={property._id}
+                  onClick={() => handlePropertyClick(property._id)}
+                  className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer hover:-translate-y-2"
+                >
+                  <figure className="h-48 overflow-hidden">
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0]}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-base-300 flex items-center justify-center">
+                        <span className="text-6xl">🏠</span>
+                      </div>
+                    )}
+                  </figure>
+
+                  <div className="card-body">
+                    <div className="flex justify-between items-start">
+                      <h2 className="card-title text-lg">{property.title}</h2>
+                      <div className="badge badge-primary">
+                        {property.propertyType}
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-base-content/70 line-clamp-2">
+                      {property.description}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-sm">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span>
+                        {property.address?.city},{" "}
+                        {property.address?.state || property.address?.country}
+                      </span>
+                    </div>
+
+                    <div className="divider my-2"></div>
+
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-2xl font-bold text-primary">
+                          ${property.rent}
+                          <span className="text-sm font-normal text-base-content/70">
+                            /month
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="badge badge-outline">
+                          {property.availableRooms}/{property.totalRooms} rooms
+                        </div>
+                      </div>
+                    </div>
+
+                    {property.amenities && property.amenities.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {property.amenities
+                          .slice(0, 3)
+                          .map((amenity, index) => (
+                            <span key={index} className="badge badge-sm">
+                              {amenity}
+                            </span>
+                          ))}
+                        {property.amenities.length > 3 && (
+                          <span className="badge badge-sm">
+                            +{property.amenities.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="card-actions justify-end mt-4">
+                      <button className="btn btn-primary btn-sm">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <Footer />
     </div>
   );
 };

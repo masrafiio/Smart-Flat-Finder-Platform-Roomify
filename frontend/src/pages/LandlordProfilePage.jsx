@@ -22,7 +22,7 @@ const LandlordProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  
+
   // Profile edit state
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -95,7 +95,7 @@ const LandlordProfilePage = () => {
       setProfile(profileData);
       setProperties(propertiesData.properties || []);
       setStats(statsData);
-      
+
       // Set profile form data
       setProfileForm({
         name: profileData.name || "",
@@ -145,15 +145,21 @@ const LandlordProfilePage = () => {
     try {
       setLoading(true);
       setError("");
-      
+
       const propertyData = {
         ...propertyForm,
         rent: Number(propertyForm.rent),
         securityDeposit: Number(propertyForm.securityDeposit),
         totalRooms: Number(propertyForm.totalRooms),
         availableRooms: Number(propertyForm.availableRooms),
-        amenities: propertyForm.amenities.split(",").map(a => a.trim()).filter(a => a),
-        images: propertyForm.images.split(",").map(i => i.trim()).filter(i => i),
+        amenities: propertyForm.amenities
+          .split(",")
+          .map((a) => a.trim())
+          .filter((a) => a),
+        images: propertyForm.images
+          .split(",")
+          .map((i) => i.trim())
+          .filter((i) => i),
         googleMapsLink: propertyForm.googleMapsLink || "",
       };
 
@@ -164,13 +170,19 @@ const LandlordProfilePage = () => {
         await createProperty(propertyData);
         setSuccess("Property created successfully!");
       }
-      
+
       // Reset form and refresh
       setPropertyForm({
         title: "",
         description: "",
         propertyType: "room",
-        address: { street: "", city: "", state: "", zipCode: "", country: "USA" },
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          country: "USA",
+        },
         googleMapsLink: "",
         rent: "",
         securityDeposit: "",
@@ -193,7 +205,7 @@ const LandlordProfilePage = () => {
 
   const handleDeleteProperty = async (propertyId) => {
     if (!confirm("Are you sure you want to delete this property?")) return;
-    
+
     try {
       setLoading(true);
       await deleteProperty(propertyId);
@@ -221,7 +233,9 @@ const LandlordProfilePage = () => {
       availableRooms: property.availableRooms,
       amenities: property.amenities.join(", "),
       images: property.images.join(", "),
-      availableFrom: property.availableFrom ? new Date(property.availableFrom).toISOString().split('T')[0] : "",
+      availableFrom: property.availableFrom
+        ? new Date(property.availableFrom).toISOString().split("T")[0]
+        : "",
     });
     setActiveTab("addProperty");
   };
@@ -246,7 +260,7 @@ const LandlordProfilePage = () => {
 
   const handleRemoveTenant = async (propertyId, tenantId) => {
     if (!confirm("Are you sure you want to remove this tenant?")) return;
-    
+
     try {
       setLoading(true);
       await removeCurrentTenant(propertyId, tenantId);
@@ -286,7 +300,12 @@ const LandlordProfilePage = () => {
         {error && (
           <div className="alert alert-error mb-4">
             <span>{error}</span>
-            <button onClick={() => setError("")} className="btn btn-sm btn-ghost">✕</button>
+            <button
+              onClick={() => setError("")}
+              className="btn btn-sm btn-ghost"
+            >
+              ✕
+            </button>
           </div>
         )}
         {success && (
@@ -333,7 +352,13 @@ const LandlordProfilePage = () => {
                 title: "",
                 description: "",
                 propertyType: "room",
-                address: { street: "", city: "", state: "", zipCode: "", country: "USA" },
+                address: {
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipCode: "",
+                  country: "USA",
+                },
                 googleMapsLink: "",
                 rent: "",
                 securityDeposit: "",
@@ -355,17 +380,23 @@ const LandlordProfilePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="stat bg-base-100 shadow-xl rounded-box">
               <div className="stat-title">Total Properties</div>
-              <div className="stat-value text-primary">{stats.totalProperties}</div>
+              <div className="stat-value text-primary">
+                {stats.totalProperties}
+              </div>
               <div className="stat-desc">Listed properties</div>
             </div>
             <div className="stat bg-base-100 shadow-xl rounded-box">
               <div className="stat-title">Published</div>
-              <div className="stat-value text-success">{stats.publishedProperties}</div>
+              <div className="stat-value text-success">
+                {stats.publishedProperties}
+              </div>
               <div className="stat-desc">Live on platform</div>
             </div>
             <div className="stat bg-base-100 shadow-xl rounded-box">
               <div className="stat-title">Pending</div>
-              <div className="stat-value text-warning">{stats.pendingProperties}</div>
+              <div className="stat-value text-warning">
+                {stats.pendingProperties}
+              </div>
               <div className="stat-desc">Awaiting approval</div>
             </div>
             <div className="stat bg-base-100 shadow-xl rounded-box">
@@ -390,7 +421,9 @@ const LandlordProfilePage = () => {
                     type="text"
                     className="input input-bordered"
                     value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, name: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -403,7 +436,9 @@ const LandlordProfilePage = () => {
                     type="tel"
                     className="input input-bordered"
                     value={profileForm.phone}
-                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, phone: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -415,7 +450,9 @@ const LandlordProfilePage = () => {
                   <select
                     className="select select-bordered"
                     value={profileForm.gender}
-                    onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, gender: e.target.value })
+                    }
                     required
                   >
                     <option value="">Select gender</option>
@@ -433,7 +470,12 @@ const LandlordProfilePage = () => {
                     type="text"
                     className="input input-bordered"
                     value={profileForm.occupation}
-                    onChange={(e) => setProfileForm({ ...profileForm, occupation: e.target.value })}
+                    onChange={(e) =>
+                      setProfileForm({
+                        ...profileForm,
+                        occupation: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -444,12 +486,18 @@ const LandlordProfilePage = () => {
                   <textarea
                     className="textarea textarea-bordered h-24"
                     value={profileForm.bio}
-                    onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, bio: e.target.value })
+                    }
                     placeholder="Tell us about yourself..."
                   />
                 </div>
 
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
                   {loading ? "Updating..." : "Update Profile"}
                 </button>
               </form>
@@ -478,23 +526,44 @@ const LandlordProfilePage = () => {
               </div>
             ) : (
               properties.map((property) => (
-                <div key={property._id} className="card bg-base-100 shadow-xl">
+                <div
+                  key={property._id}
+                  className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/property/${property._id}`)}
+                >
                   <div className="card-body">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="card-title">{property.title}</h3>
-                        <p className="text-sm opacity-70">{property.address.city}, {property.address.state}</p>
+                        <p className="text-sm opacity-70">
+                          {property.address.city}, {property.address.state}
+                        </p>
                       </div>
                       <div className="flex gap-2">
                         <button
+                          className="btn btn-sm btn-info"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/property/${property._id}`);
+                          }}
+                        >
+                          View
+                        </button>
+                        <button
                           className="btn btn-sm btn-primary"
-                          onClick={() => handleEditProperty(property)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditProperty(property);
+                          }}
                         >
                           Edit
                         </button>
                         <button
                           className="btn btn-sm btn-error"
-                          onClick={() => handleDeleteProperty(property._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteProperty(property._id);
+                          }}
                         >
                           Delete
                         </button>
@@ -504,7 +573,9 @@ const LandlordProfilePage = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                       <div>
                         <p className="text-sm opacity-70">Type</p>
-                        <p className="font-semibold capitalize">{property.propertyType}</p>
+                        <p className="font-semibold capitalize">
+                          {property.propertyType}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm opacity-70">Rent</p>
@@ -516,43 +587,61 @@ const LandlordProfilePage = () => {
                       </div>
                       <div>
                         <p className="text-sm opacity-70">Available</p>
-                        <p className="font-semibold">{property.availableRooms}</p>
+                        <p className="font-semibold">
+                          {property.availableRooms}
+                        </p>
                       </div>
                     </div>
 
                     <div className="mt-4">
                       <p className="text-sm opacity-70">Status</p>
                       <div className="flex gap-2 mt-1">
-                        <span className={`badge ${
-                          property.verificationStatus === "approved" ? "badge-success" :
-                          property.verificationStatus === "pending" ? "badge-warning" :
-                          "badge-error"
-                        }`}>
+                        <span
+                          className={`badge ${
+                            property.verificationStatus === "approved"
+                              ? "badge-success"
+                              : property.verificationStatus === "pending"
+                              ? "badge-warning"
+                              : "badge-error"
+                          }`}
+                        >
                           {property.verificationStatus}
                         </span>
                         {property.isPublished && (
                           <span className="badge badge-info">Published</span>
                         )}
-                        <span className="badge badge-ghost">Views: {property.viewCount}</span>
+                        <span className="badge badge-ghost">
+                          Views: {property.viewCount}
+                        </span>
                       </div>
                     </div>
 
                     {/* Current Tenants */}
                     <div className="mt-4">
                       <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-semibold">Current Tenants ({property.currentTenants?.length || 0})</h4>
+                        <h4 className="font-semibold">
+                          Current Tenants (
+                          {property.currentTenants?.length || 0})
+                        </h4>
                         <button
                           className="btn btn-xs btn-primary"
-                          onClick={() => setAddingTenantTo(property._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAddingTenantTo(property._id);
+                          }}
                         >
                           Add Tenant
                         </button>
                       </div>
-                      
-                      {property.currentTenants && property.currentTenants.length > 0 ? (
+
+                      {property.currentTenants &&
+                      property.currentTenants.length > 0 ? (
                         <div className="space-y-2">
                           {property.currentTenants.map((tenant) => (
-                            <div key={tenant._id} className="flex justify-between items-center p-2 bg-base-200 rounded">
+                            <div
+                              key={tenant._id}
+                              className="flex justify-between items-center p-2 bg-base-200 rounded"
+                            >
                               <div>
                                 <p className="font-semibold">{tenant.name}</p>
                                 <p className="text-xs opacity-70">
@@ -561,7 +650,10 @@ const LandlordProfilePage = () => {
                               </div>
                               <button
                                 className="btn btn-xs btn-error"
-                                onClick={() => handleRemoveTenant(property._id, tenant._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveTenant(property._id, tenant._id);
+                                }}
                               >
                                 Remove
                               </button>
@@ -609,7 +701,12 @@ const LandlordProfilePage = () => {
                     type="text"
                     className="input input-bordered"
                     value={propertyForm.title}
-                    onChange={(e) => setPropertyForm({ ...propertyForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        title: e.target.value,
+                      })
+                    }
                     required
                   />
                 </div>
@@ -621,7 +718,12 @@ const LandlordProfilePage = () => {
                   <textarea
                     className="textarea textarea-bordered h-24"
                     value={propertyForm.description}
-                    onChange={(e) => setPropertyForm({ ...propertyForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        description: e.target.value,
+                      })
+                    }
                     required
                   />
                 </div>
@@ -634,7 +736,12 @@ const LandlordProfilePage = () => {
                     <select
                       className="select select-bordered"
                       value={propertyForm.propertyType}
-                      onChange={(e) => setPropertyForm({ ...propertyForm, propertyType: e.target.value })}
+                      onChange={(e) =>
+                        setPropertyForm({
+                          ...propertyForm,
+                          propertyType: e.target.value,
+                        })
+                      }
                       required
                     >
                       <option value="room">Room</option>
@@ -654,7 +761,10 @@ const LandlordProfilePage = () => {
                       onChange={(e) =>
                         setPropertyForm({
                           ...propertyForm,
-                          address: { ...propertyForm.address, city: e.target.value },
+                          address: {
+                            ...propertyForm.address,
+                            city: e.target.value,
+                          },
                         })
                       }
                       required
@@ -674,7 +784,10 @@ const LandlordProfilePage = () => {
                       onChange={(e) =>
                         setPropertyForm({
                           ...propertyForm,
-                          address: { ...propertyForm.address, street: e.target.value },
+                          address: {
+                            ...propertyForm.address,
+                            street: e.target.value,
+                          },
                         })
                       }
                     />
@@ -691,7 +804,10 @@ const LandlordProfilePage = () => {
                       onChange={(e) =>
                         setPropertyForm({
                           ...propertyForm,
-                          address: { ...propertyForm.address, state: e.target.value },
+                          address: {
+                            ...propertyForm.address,
+                            state: e.target.value,
+                          },
                         })
                       }
                     />
@@ -708,7 +824,10 @@ const LandlordProfilePage = () => {
                       onChange={(e) =>
                         setPropertyForm({
                           ...propertyForm,
-                          address: { ...propertyForm.address, zipCode: e.target.value },
+                          address: {
+                            ...propertyForm.address,
+                            zipCode: e.target.value,
+                          },
                         })
                       }
                     />
@@ -732,7 +851,9 @@ const LandlordProfilePage = () => {
                     placeholder="Paste Google Maps link here (e.g., https://goo.gl/maps/...)"
                   />
                   <label className="label">
-                    <span className="label-text-alt">Right-click on Google Maps location → Share → Copy link</span>
+                    <span className="label-text-alt">
+                      Right-click on Google Maps location → Share → Copy link
+                    </span>
                   </label>
                 </div>
 
@@ -745,7 +866,12 @@ const LandlordProfilePage = () => {
                       type="number"
                       className="input input-bordered"
                       value={propertyForm.rent}
-                      onChange={(e) => setPropertyForm({ ...propertyForm, rent: e.target.value })}
+                      onChange={(e) =>
+                        setPropertyForm({
+                          ...propertyForm,
+                          rent: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -758,7 +884,12 @@ const LandlordProfilePage = () => {
                       type="number"
                       className="input input-bordered"
                       value={propertyForm.securityDeposit}
-                      onChange={(e) => setPropertyForm({ ...propertyForm, securityDeposit: e.target.value })}
+                      onChange={(e) =>
+                        setPropertyForm({
+                          ...propertyForm,
+                          securityDeposit: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -772,7 +903,12 @@ const LandlordProfilePage = () => {
                       type="number"
                       className="input input-bordered"
                       value={propertyForm.totalRooms}
-                      onChange={(e) => setPropertyForm({ ...propertyForm, totalRooms: e.target.value })}
+                      onChange={(e) =>
+                        setPropertyForm({
+                          ...propertyForm,
+                          totalRooms: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -785,7 +921,12 @@ const LandlordProfilePage = () => {
                       type="number"
                       className="input input-bordered"
                       value={propertyForm.availableRooms}
-                      onChange={(e) => setPropertyForm({ ...propertyForm, availableRooms: e.target.value })}
+                      onChange={(e) =>
+                        setPropertyForm({
+                          ...propertyForm,
+                          availableRooms: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -793,26 +934,40 @@ const LandlordProfilePage = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Amenities (comma-separated)</span>
+                    <span className="label-text">
+                      Amenities (comma-separated)
+                    </span>
                   </label>
                   <input
                     type="text"
                     className="input input-bordered"
                     value={propertyForm.amenities}
-                    onChange={(e) => setPropertyForm({ ...propertyForm, amenities: e.target.value })}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        amenities: e.target.value,
+                      })
+                    }
                     placeholder="WiFi, Parking, AC, etc."
                   />
                 </div>
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Image URLs (comma-separated)</span>
+                    <span className="label-text">
+                      Image URLs (comma-separated)
+                    </span>
                   </label>
                   <input
                     type="text"
                     className="input input-bordered"
                     value={propertyForm.images}
-                    onChange={(e) => setPropertyForm({ ...propertyForm, images: e.target.value })}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        images: e.target.value,
+                      })
+                    }
                     placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
                   />
                 </div>
@@ -825,13 +980,26 @@ const LandlordProfilePage = () => {
                     type="date"
                     className="input input-bordered"
                     value={propertyForm.availableFrom}
-                    onChange={(e) => setPropertyForm({ ...propertyForm, availableFrom: e.target.value })}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        availableFrom: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
                 <div className="flex gap-2">
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? "Saving..." : editingProperty ? "Update Property" : "Create Property"}
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading
+                      ? "Saving..."
+                      : editingProperty
+                      ? "Update Property"
+                      : "Create Property"}
                   </button>
                   {editingProperty && (
                     <button
@@ -866,7 +1034,9 @@ const LandlordProfilePage = () => {
                   type="text"
                   className="input input-bordered"
                   value={tenantForm.name}
-                  onChange={(e) => setTenantForm({ ...tenantForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setTenantForm({ ...tenantForm, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -878,7 +1048,9 @@ const LandlordProfilePage = () => {
                 <select
                   className="select select-bordered"
                   value={tenantForm.gender}
-                  onChange={(e) => setTenantForm({ ...tenantForm, gender: e.target.value })}
+                  onChange={(e) =>
+                    setTenantForm({ ...tenantForm, gender: e.target.value })
+                  }
                   required
                 >
                   <option value="">Select gender</option>
@@ -896,13 +1068,19 @@ const LandlordProfilePage = () => {
                   type="text"
                   className="input input-bordered"
                   value={tenantForm.occupation}
-                  onChange={(e) => setTenantForm({ ...tenantForm, occupation: e.target.value })}
+                  onChange={(e) =>
+                    setTenantForm({ ...tenantForm, occupation: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="modal-action">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
                   {loading ? "Adding..." : "Add Tenant"}
                 </button>
                 <button
@@ -918,7 +1096,10 @@ const LandlordProfilePage = () => {
               </div>
             </form>
           </div>
-          <div className="modal-backdrop" onClick={() => setAddingTenantTo(null)}></div>
+          <div
+            className="modal-backdrop"
+            onClick={() => setAddingTenantTo(null)}
+          ></div>
         </div>
       )}
     </div>
