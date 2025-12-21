@@ -8,13 +8,7 @@ const HomePage = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filters, setFilters] = useState({
-    search: "",
-    city: "",
-    propertyType: "",
-    minRent: "",
-    maxRent: "",
-  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,26 +51,7 @@ const HomePage = () => {
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchProperties(filters);
-  };
-
-  const handleReset = () => {
-    setFilters({
-      search: "",
-      city: "",
-      propertyType: "",
-      minRent: "",
-      maxRent: "",
-    });
-    fetchProperties();
-  };
 
   const handlePropertyClick = (propertyId) => {
     navigate(`/property/${propertyId}`);
@@ -88,111 +63,7 @@ const HomePage = () => {
 
       {/* Hero Section */}
       <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content py-20">
-        <div className="hero-content text-center">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl font-bold mb-6">
-              Find Your Perfect Home with Roomify 🏠
-            </h1>
-            <p className="text-lg mb-8">
-              Discover amazing properties, connect with verified landlords, and
-              find your ideal living space today!
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Search & Filter Section */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="card bg-base-100 shadow-lg p-6 mb-8">
-          <form onSubmit={handleSearch}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="form-control">
-                <input
-                  type="text"
-                  name="search"
-                  value={filters.search}
-                  onChange={handleFilterChange}
-                  placeholder="Search properties..."
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              <div className="form-control">
-                <input
-                  type="text"
-                  name="city"
-                  value={filters.city}
-                  onChange={handleFilterChange}
-                  placeholder="City"
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              <div className="form-control">
-                <select
-                  name="propertyType"
-                  value={filters.propertyType}
-                  onChange={handleFilterChange}
-                  className="select select-bordered w-full"
-                >
-                  <option value="">All Types</option>
-                  <option value="room">Room</option>
-                  <option value="flat">Flat</option>
-                  <option value="apartment">Apartment</option>
-                </select>
-              </div>
-
-              <div className="form-control">
-                <input
-                  type="number"
-                  name="minRent"
-                  value={filters.minRent}
-                  onChange={handleFilterChange}
-                  placeholder="Min Rent"
-                  className="input input-bordered w-full"
-                />
-              </div>
-
-              <div className="form-control">
-                <input
-                  type="number"
-                  name="maxRent"
-                  value={filters.maxRent}
-                  onChange={handleFilterChange}
-                  placeholder="Max Rent"
-                  className="input input-bordered w-full"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-4 mt-4">
-              <button type="submit" className="btn btn-primary">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="btn btn-ghost"
-              >
-                Reset Filters
-              </button>
-            </div>
-          </form>
-        </div>
 
         {/* Properties Section */}
         {loading ? (
