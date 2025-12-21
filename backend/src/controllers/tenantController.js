@@ -44,7 +44,15 @@ export async function getTenantProfile(req, res) {
 export async function updateTenantProfile(req, res) {
   try {
     const userId = req.user.id;
-    const { name, phone, gender, occupation, dateOfBirth, bio, profilePicture } = req.body;
+    const {
+      name,
+      phone,
+      gender,
+      occupation,
+      dateOfBirth,
+      bio,
+      profilePicture,
+    } = req.body;
 
     const user = await User.findById(userId);
 
@@ -182,9 +190,7 @@ export async function removeFromWishlist(req, res) {
       return res.status(403).json({ message: "Access denied. Tenants only." });
     }
 
-    user.wishlist = user.wishlist.filter(
-      (id) => id.toString() !== propertyId
-    );
+    user.wishlist = user.wishlist.filter((id) => id.toString() !== propertyId);
     await user.save();
 
     res.status(200).json({ message: "Removed from wishlist successfully" });
@@ -215,5 +221,37 @@ export async function getViewedProperties(req, res) {
   } catch (error) {
     console.error("Error in getViewedProperties:", error);
     res.status(500).json({ message: "Error fetching viewed properties" });
+  }
+}
+
+// ---------------- GET USER PROFILE BY ID ----------------
+export async function getUserProfile(req, res) {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      profilePicture: user.profilePicture,
+      gender: user.gender,
+      occupation: user.occupation,
+      bio: user.bio,
+      averageRating: user.averageRating,
+      totalRatings: user.totalRatings,
+      verificationStatus: user.verificationStatus,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error("Error in getUserProfile:", error);
+    res.status(500).json({ message: "Error fetching user profile" });
   }
 }

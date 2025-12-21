@@ -1212,9 +1212,21 @@ const LandlordProfilePage = () => {
                         <h3 className="card-title">
                           {booking.property?.title || "Property"}
                         </h3>
-                        <p className="text-sm opacity-70">
-                          Tenant: {booking.tenant?.name || "Unknown"}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm opacity-70">
+                            Tenant: {booking.tenant?.name || "Unknown"}
+                          </p>
+                          {booking.tenant?._id && (
+                            <button
+                              onClick={() =>
+                                navigate(`/user/${booking.tenant._id}`)
+                              }
+                              className="btn btn-xs btn-ghost"
+                            >
+                              View Profile
+                            </button>
+                          )}
+                        </div>
                         <p className="text-sm opacity-70">
                           Email: {booking.tenant?.email || "N/A"}
                         </p>

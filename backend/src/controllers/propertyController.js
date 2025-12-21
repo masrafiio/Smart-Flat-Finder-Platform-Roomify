@@ -40,7 +40,8 @@ export const createProperty = async (req, res) => {
       rent,
       securityDeposit: securityDeposit || 0,
       totalRooms,
-      availableRooms: availableRooms !== undefined ? availableRooms : totalRooms,
+      availableRooms:
+        availableRooms !== undefined ? availableRooms : totalRooms,
       amenities: amenities || [],
       images: images || [],
       currentTenants: currentTenants || [],
@@ -99,7 +100,8 @@ export const updateProperty = async (req, res) => {
     if (address) property.address = { ...property.address, ...address };
     if (googleMapsLink !== undefined) property.googleMapsLink = googleMapsLink;
     if (rent !== undefined) property.rent = rent;
-    if (securityDeposit !== undefined) property.securityDeposit = securityDeposit;
+    if (securityDeposit !== undefined)
+      property.securityDeposit = securityDeposit;
     if (totalRooms !== undefined) property.totalRooms = totalRooms;
     if (availableRooms !== undefined) property.availableRooms = availableRooms;
     if (amenities) property.amenities = amenities;
@@ -150,17 +152,25 @@ export const deleteProperty = async (req, res) => {
 export const getProperty = async (req, res) => {
   try {
     const { id } = req.params;
-    const property = await Property.findById(id).populate(
-      "landlord",
-      "name email phone profilePicture averageRating totalRatings"
-    );
+    const property = await Property.findById(id)
+      .populate(
+        "landlord",
+        "name email phone profilePicture averageRating totalRatings"
+      )
+      .populate(
+        "tenants",
+        "name email phone gender occupation averageRating totalRatings"
+      );
 
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
 
     // Increment view count (only if not the landlord viewing)
-    if (!req.user || property.landlord._id.toString() !== req.user._id.toString()) {
+    if (
+      !req.user ||
+      property.landlord._id.toString() !== req.user._id.toString()
+    ) {
       property.viewCount += 1;
       await property.save();
     }
