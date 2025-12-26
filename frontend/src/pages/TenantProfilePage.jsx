@@ -576,10 +576,24 @@ const TenantProfilePage = () => {
                     )}
                     <div className="card-body">
                       <h4 className="card-title">{property.title}</h4>
-                      <p className="text-gray-600">{property.address}</p>
-                      <p className="text-xl font-semibold text-primary">
-                        BDT {property.rent}/month
+                      <p className="text-gray-600 text-sm">
+                        📍 {property.address?.street && `${property.address.street}, `}
+                        {property.address?.city}
+                        {property.address?.state && `, ${property.address.state}`}
                       </p>
+                      <p className="text-xl font-semibold text-primary">
+                        ${property.rent}/month
+                      </p>
+                      <div className="flex gap-2 mt-2">
+                        <span className="badge badge-sm">
+                          {property.availableRooms} rooms available
+                        </span>
+                        {property.isAvailable && (
+                          <span className="badge badge-success badge-sm">
+                            Available
+                          </span>
+                        )}
+                      </div>
                       <div className="card-actions justify-end mt-4">
                         <button
                           onClick={() =>

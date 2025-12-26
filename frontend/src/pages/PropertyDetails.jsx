@@ -9,6 +9,7 @@ import {
   rateUser,
   getMyRatingForUser,
 } from "../api/reviewApi";
+import { addToWishlist, getTenantWishlist } from "../api/tenantApi";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -16,6 +17,7 @@ const PropertyDetails = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Review states
   const [reviews, setReviews] = useState([]);
@@ -28,12 +30,17 @@ const PropertyDetails = () => {
   const [myRating, setMyRating] = useState(null);
   const [showRatingForm, setShowRatingForm] = useState(false);
 
+  // Wishlist state
+  const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
     fetchPropertyDetails();
+    checkIfInWishlist();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -77,6 +84,24 @@ const PropertyDetails = () => {
       setReviews(data.reviews || []);
     } catch (err) {
       console.error("Error fetching reviews:", err);
+    }
+  };
+
+  const checkIfInWishlist = async () => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (!userData) return;
+
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.role !== "tenant") return;
+
+      const data = await getTenantWishlist();
+      const isPropertyInWishlist = data.wishlist.some(
+        (item) => item._id === id
+      );
+      setIsInWishlist(isPropertyInWishlist);
+    } catch (err) {
+      console.error("Error checking wishlist:", err);
     }
   };
 
@@ -126,6 +151,35 @@ const PropertyDetails = () => {
       setError(err.response?.data?.message || "Failed to submit rating");
     } finally {
       setReviewLoading(false);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      setError("Please login to add to wishlist");
+      setTimeout(() => navigate("/login"), 2000);
+      return;
+    }
+
+    if (user.role !== "tenant") {
+      setError("Only tenants can add properties to wishlist");
+      return;
+    }
+
+    setIsAddingToWishlist(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await addToWishlist(id);
+      setIsInWishlist(true);
+      setSuccess("Property added to wishlist successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add to wishlist");
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setIsAddingToWishlist(false);
     }
   };
 
@@ -182,6 +236,18 @@ const PropertyDetails = () => {
       <Navbar />
 
       <div className="flex-grow container mx-auto p-4 md:p-8">
+        {/* Alert Messages */}
+        {error && (
+          <div className="alert alert-error mb-4">
+            <span>{error}</span>
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success mb-4">
+            <span>{success}</span>
+          </div>
+        )}
+
         {/* Property Header */}
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
@@ -417,8 +483,25 @@ const PropertyDetails = () => {
                 >
                   Request Booking
                 </button>
-                <button className="btn btn-outline btn-block">
-                  Add to Wishlist
+                <button 
+                  onClick={handleAddToWishlist}
+                  className={`btn btn-block ${
+                    isInWishlist ? "btn-success" : "btn-outline"
+                  }`}
+                  disabled={isAddingToWishlist || isInWishlist}
+                >
+                  {isAddingToWishlist ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Adding...
+                    </>
+                  ) : isInWishlist ? (
+                    <>
+                      ✓ Added to Wishlist
+                    </>
+                  ) : (
+                    "Add to Wishlist"
+                  )}
                 </button>
               </div>
             </div>
