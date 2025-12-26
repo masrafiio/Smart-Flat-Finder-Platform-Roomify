@@ -128,7 +128,7 @@ export async function getTenantWishlist(req, res) {
     const user = await User.findById(userId).populate({
       path: "wishlist",
       populate: {
-        path: "owner",
+        path: "landlord",
         select: "name email phone averageRating",
       },
     });
