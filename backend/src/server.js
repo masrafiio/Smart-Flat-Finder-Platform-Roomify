@@ -6,6 +6,7 @@ import landlordRoutes from "./routes/landlordRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 // import forumRoutes from "./routes/forumRoutes.js";
 // import notificationRoutes from "./routes/notificationRoutes.js";
 import { connectDB } from "./config/db.js";
@@ -31,6 +32,7 @@ app.use("/api/landlord", landlordRoutes);
 app.use("/api/property", propertyRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/booking", bookingRoutes);
+app.use("/api/report", reportRoutes);
 // app.use("/api/forum", forumRoutes);
 // app.use("/api/notification", notificationRoutes);
 
