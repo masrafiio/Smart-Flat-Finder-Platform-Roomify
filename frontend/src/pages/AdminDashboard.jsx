@@ -170,16 +170,24 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateReport = async (reportId, status) => {
-    const adminNotes = prompt("Admin notes (optional):");
-    const actionTaken = prompt("Action taken (optional):");
-
     try {
       await api.put(`/admin/reports/${reportId}`, {
         status,
-        adminNotes,
-        actionTaken,
       });
       alert("Report updated");
+      fetchReports();
+      fetchDashboardStats();
+    } catch (error) {
+      alert("Error: " + (error.response?.data?.message || "Failed"));
+    }
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    if (!confirm("Delete this report? Cannot be undone!")) return;
+
+    try {
+      await api.delete(`/admin/reports/${reportId}`);
+      alert("Report deleted");
       fetchReports();
       fetchDashboardStats();
     } catch (error) {
@@ -225,37 +233,37 @@ const AdminDashboard = () => {
             className={`tab ${activeTab === "overview" ? "tab-active" : ""}`}
             onClick={() => handleTabChange("overview")}
           >
-            📊 Overview
+            Overview
           </a>
           <a
             className={`tab ${activeTab === "profile" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("profile")}
           >
-            👤 Profile
+            Profile
           </a>
           <a
             className={`tab ${activeTab === "users" ? "tab-active" : ""}`}
             onClick={() => handleTabChange("users")}
           >
-            👥 Users
+            Users
           </a>
           <a
             className={`tab ${activeTab === "properties" ? "tab-active" : ""}`}
             onClick={() => handleTabChange("properties")}
           >
-            🏢 Properties
+            Properties
           </a>
           <a
             className={`tab ${activeTab === "pending" ? "tab-active" : ""}`}
             onClick={() => handleTabChange("pending")}
           >
-            ⏳ Pending ({stats?.pendingVerifications || 0})
+            Pending ({stats?.pendingVerifications || 0})
           </a>
           <a
             className={`tab ${activeTab === "reports" ? "tab-active" : ""}`}
             onClick={() => handleTabChange("reports")}
           >
-            🚨 Reports ({stats?.pendingReports || 0})
+            Reports ({stats?.pendingReports || 0})
           </a>
         </div>
 
@@ -648,90 +656,162 @@ const AdminDashboard = () => {
                 <table className="table table-zebra">
                   <thead>
                     <tr>
+                      <th>ID</th>
                       <th>Reporter</th>
-                      <th>Type</th>
-                      <th>Reason</th>
-                      <th>Description</th>
+                      <th>Reported User</th>
                       <th>Status</th>
                       <th>Date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {reports.map((report) => (
-                      <tr key={report._id}>
-                        <td>{report.reporter?.name || "Unknown"}</td>
-                        <td className="capitalize">{report.itemType}</td>
-                        <td>{report.reason.replace(/_/g, " ")}</td>
-                        <td>
-                          {report.description
-                            ? report.description.substring(0, 50) + "..."
-                            : "N/A"}
-                        </td>
-                        <td>
-                          <span
-                            className={`badge ${
-                              report.status === "resolved"
-                                ? "badge-success"
-                                : report.status === "dismissed"
-                                ? "badge-error"
-                                : report.status === "under_review"
-                                ? "badge-warning"
-                                : "badge-info"
-                            }`}
-                          >
-                            {report.status.replace(/_/g, " ")}
-                          </span>
-                        </td>
-                        <td>
-                          {new Date(report.createdAt).toLocaleDateString()}
-                        </td>
-                        <td>
-                          <div className="dropdown dropdown-end">
-                            <label tabIndex={0} className="btn btn-xs">
-                              Actions
-                            </label>
-                            <ul
-                              tabIndex={0}
-                              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-                            >
-                              <li>
-                                <a
-                                  onClick={() =>
-                                    handleUpdateReport(
-                                      report._id,
-                                      "under_review"
-                                    )
-                                  }
-                                >
-                                  Under Review
-                                </a>
-                              </li>
-                              <li>
-                                <a
-                                  onClick={() =>
-                                    handleUpdateReport(report._id, "resolved")
-                                  }
-                                >
-                                  Resolve
-                                </a>
-                              </li>
-                              <li>
-                                <a
-                                  onClick={() =>
-                                    handleUpdateReport(report._id, "dismissed")
-                                  }
-                                >
-                                  Dismiss
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
+                    {reports.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center">
+                          No reports found
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      reports.map((report) => (
+                        <tr key={report._id}>
+                          <td>#{report._id.slice(-6)}</td>
+                          <td>
+                            {report.reporter?.name || "Unknown"}
+                            <br />
+                            <span className="text-xs opacity-60">
+                              {report.reporter?.role}
+                            </span>
+                          </td>
+                          <td>
+                            {report.reportedItemDetails?.name || "Unknown"}
+                            <br />
+                            <span className="text-xs opacity-60">
+                              {report.reportedItemDetails?.role}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              className={`badge ${
+                                report.status === "resolved"
+                                  ? "badge-success"
+                                  : report.status === "dismissed"
+                                  ? "badge-error"
+                                  : "badge-warning"
+                              }`}
+                            >
+                              {report.status}
+                            </span>
+                          </td>
+                          <td>
+                            {new Date(report.createdAt).toLocaleDateString()}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() =>
+                                document
+                                  .getElementById(`report_modal_${report._id}`)
+                                  .showModal()
+                              }
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
+
+                {/* Report Modals */}
+                {reports.map((report) => (
+                  <dialog
+                    key={report._id}
+                    id={`report_modal_${report._id}`}
+                    className="modal"
+                  >
+                    <div className="modal-box">
+                      <h3 className="font-bold text-lg mb-4">
+                        Report Details
+                      </h3>
+
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm font-semibold">Reporter:</p>
+                          <p>
+                            {report.reporter?.name} ({report.reporter?.email})
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold">
+                            Reported User:
+                          </p>
+                          <p>
+                            {report.reportedItemDetails?.name || "Unknown"} (
+                            {report.reportedItemDetails?.email || "N/A"})
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold">Comment:</p>
+                          <div className="bg-base-200 p-3 rounded mt-1">
+                            <p className="whitespace-pre-wrap">
+                              {report.description || "No comment provided"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold">Status:</p>
+                          <p className="capitalize">{report.status}</p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold">Date:</p>
+                          <p>{new Date(report.createdAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+
+                      <div className="modal-action">
+                        <div className="flex gap-2 w-full">
+                          {report.status !== "resolved" && (
+                            <button
+                              className="btn btn-success flex-1"
+                              onClick={() => {
+                                handleUpdateReport(report._id, "resolved");
+                                document
+                                  .getElementById(`report_modal_${report._id}`)
+                                  .close();
+                              }}
+                            >
+                              Mark as Reviewed
+                            </button>
+                          )}
+
+                          <button
+                            className="btn btn-warning flex-1"
+                            onClick={() => {
+                              handleDeleteReport(report._id);
+                              document
+                                .getElementById(`report_modal_${report._id}`)
+                                .close();
+                            }}
+                          >
+                            Remove Report
+                          </button>
+
+                          <form method="dialog">
+                            <button className="btn">Close</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    <form method="dialog" className="modal-backdrop">
+                      <button>close</button>
+                    </form>
+                  </dialog>
+                ))}
               </div>
             )}
           </div>
