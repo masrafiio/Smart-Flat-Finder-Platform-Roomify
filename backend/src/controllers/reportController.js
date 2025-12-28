@@ -9,9 +9,24 @@ export const getAllReports = async (req, res) => {
     const filter = status ? { status } : {};
 
     const reports = await Report.find(filter)
-      .populate("reporter", "name email")
+      .populate("reporter", "name email role")
       .populate("reviewedBy", "name email")
       .sort({ createdAt: -1 });
+
+    // Populate reported items based on type
+    for (let report of reports) {
+      if (report.itemType === "user") {
+        const reportedUser = await User.findById(report.reportedItem).select(
+          "name email role"
+        );
+        report._doc.reportedItemDetails = reportedUser;
+      } else if (report.itemType === "property") {
+        const reportedProperty = await Property.findById(
+          report.reportedItem
+        ).select("title address.city");
+        report._doc.reportedItemDetails = reportedProperty;
+      }
+    }
 
     res.status(200).json({ success: true, reports });
   } catch (error) {
@@ -64,6 +79,26 @@ export const createReport = async (req, res) => {
     res
       .status(201)
       .json({ success: true, message: "Report submitted", report });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete a report (Admin only)
+export const deleteReport = async (req, res) => {
+  try {
+    const { reportId } = req.params;
+
+    const report = await Report.findByIdAndDelete(reportId);
+    if (!report) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Report not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Report deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

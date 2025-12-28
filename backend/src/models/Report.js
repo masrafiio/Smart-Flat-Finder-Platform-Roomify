@@ -25,7 +25,7 @@ const reportSchema = new mongoose.Schema(
         "fake_listing",
         "other",
       ],
-      required: true,
+      default: "other",
     },
     description: String,
 

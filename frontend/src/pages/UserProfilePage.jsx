@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { createReport } from "../api/reportApi";
 
 const UserProfilePage = () => {
   const { userId } = useParams();
@@ -10,9 +11,21 @@ const UserProfilePage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [properties, setProperties] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  
+  // Report modal states
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportDescription, setReportDescription] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
+    // Get current user from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
     fetchUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
@@ -40,6 +53,47 @@ const UserProfilePage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    
+    setReportLoading(true);
+    setError("");
+    setSuccess("");
+    
+    try {
+      await createReport({
+        reportedItem: userId,
+        itemType: "user",
+        description: reportDescription
+      });
+      
+      setSuccess("Report submitted successfully!");
+      setShowReportModal(false);
+      setReportDescription("");
+      
+      
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      console.error("Error submitting report:", err);
+      setError(err.response?.data?.message || "Failed to submit report");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  const canReportUser = () => {
+    if (!currentUser || !user) return false;
+    
+    // Don't allow self-reporting
+    if (currentUser.id === userId) return false;
+    
+    // Landlords can report tenants and vice versa
+    if (currentUser.role === "landlord" && user.role === "tenant") return true;
+    if (currentUser.role === "tenant" && user.role === "landlord") return true;
+    
+    return false;
   };
 
   if (loading) {
@@ -89,6 +143,45 @@ const UserProfilePage = () => {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
+        {/* Alert Messages */}
+        {error && (
+          <div className="alert alert-error mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="alert alert-success mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{success}</span>
+          </div>
+        )}
+        
         {/* Back Button */}
         <button onClick={() => navigate(-1)} className="btn btn-ghost mb-4">
           ← Back
@@ -107,13 +200,25 @@ const UserProfilePage = () => {
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold">{user.name}</h1>
-                  <div className="badge badge-primary capitalize">
-                    {user.role}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="text-3xl font-bold">{user.name}</h1>
+                    <div className="badge badge-primary capitalize">
+                      {user.role}
+                    </div>
+                    {user.verificationStatus === "approved" && (
+                      <div className="badge badge-success">Verified</div>
+                    )}
                   </div>
-                  {user.verificationStatus === "approved" && (
-                    <div className="badge badge-success">Verified</div>
+                  
+                  {/* Report Button */}
+                  {canReportUser() && (
+                    <button
+                      onClick={() => setShowReportModal(true)}
+                      className="btn btn-error btn-sm"
+                    >
+                       Report User
+                    </button>
                   )}
                 </div>
 
@@ -231,6 +336,67 @@ const UserProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Report {user.name}</h3>
+            <p className="text-sm opacity-70 mb-4">
+              Please provide details about why you're reporting this user.
+            </p>
+
+            <form onSubmit={handleReportSubmit}>
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">Description</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered h-32"
+                  placeholder="Please describe the issue in detail..."
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => {
+                    setShowReportModal(false);
+                    setReportDescription("");
+                    setError("");
+                  }}
+                  disabled={reportLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-error"
+                  disabled={reportLoading}
+                >
+                  {reportLoading ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : (
+                    "Submit Report"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+          <div
+            className="modal-backdrop"
+            onClick={() => {
+              setShowReportModal(false);
+              setReportDescription("");
+              setError("");
+            }}
+          ></div>
+        </div>
+      )}
 
       <Footer />
     </div>

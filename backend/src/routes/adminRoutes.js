@@ -18,6 +18,7 @@ import {
 import {
   getAllReports,
   updateReportStatus,
+  deleteReport,
 } from "../controllers/reportController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
@@ -46,6 +47,7 @@ router.delete("/properties/:propertyId", deleteProperty);
 // Report management
 router.get("/reports", getAllReports);
 router.put("/reports/:reportId", updateReportStatus);
+router.delete("/reports/:reportId", deleteReport);
 
 // Profile
 router.put("/profile", updateAdminProfile);
