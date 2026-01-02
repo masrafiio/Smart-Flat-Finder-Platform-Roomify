@@ -176,8 +176,12 @@ const LandlordProfilePage = () => {
       };
 
       if (editingProperty) {
-        await updateProperty(editingProperty._id, propertyData);
+        const response = await updateProperty(editingProperty._id, propertyData);
         setSuccess("Property updated successfully!");
+        // Update the property in the local state immediately
+        setProperties(properties.map(p => 
+          p._id === editingProperty._id ? response.property : p
+        ));
       } else {
         await createProperty(propertyData);
         setSuccess("Property created successfully!");
