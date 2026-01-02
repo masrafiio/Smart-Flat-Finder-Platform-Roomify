@@ -2,22 +2,28 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
-    recipient: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-
-    type: { type: String, required: true },
-    title: { type: String, required: true },
-    message: { type: String, required: true },
-
-    relatedProperty: { type: mongoose.Schema.Types.ObjectId, ref: "Property" },
-    relatedBooking: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
-
-    isRead: { type: Boolean, default: false },
-    isEmailSent: { type: Boolean, default: false },
+    property: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Property",
+    },
+    type: {
+      type: String,
+      enum: ["price_change", "availability_change", "booking", "review", "general"],
+      default: "general",
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
