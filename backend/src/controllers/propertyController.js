@@ -301,6 +301,131 @@ export const getAllProperties = async (req, res) => {
   }
 };
 
+// Get pending property verifications (Admin only)
+export const getPendingVerifications = async (req, res) => {
+  try {
+    const properties = await Property.find({ verificationStatus: "pending" })
+      .populate("landlord", "name email")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, properties });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get all properties for admin (Admin only) - includes suspended properties
+export const getAllPropertiesAdmin = async (req, res) => {
+  try {
+    const properties = await Property.find()
+      .populate("landlord", "name email")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, properties });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Approve property (Admin only)
+export const approveProperty = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { verificationStatus: "approved", isPublished: true },
+      { new: true }
+    );
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Property approved", property });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Reject property (Admin only)
+export const rejectProperty = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { rejectionReason } = req.body;
+
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { verificationStatus: "rejected", isPublished: false, rejectionReason },
+      { new: true }
+    );
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Property rejected", property });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Suspend property (Admin only)
+export const suspendProperty = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { isPublished: false, isAvailable: false, isSuspended: true },
+      { new: true }
+    );
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Property suspended", property });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Unsuspend property (Admin only)
+export const unsuspendProperty = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { isPublished: true, isAvailable: true, isSuspended: false },
+      { new: true }
+    );
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Property unsuspended", property });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Add current tenant to property
 export const addCurrentTenant = async (req, res) => {
   try {
@@ -373,68 +498,5 @@ export const removeCurrentTenant = async (req, res) => {
   } catch (error) {
     console.error("Error removing tenant:", error);
     res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Get pending property verifications (Admin only)
-export const getPendingVerifications = async (req, res) => {
-  try {
-    const properties = await Property.find({ verificationStatus: "pending" })
-      .populate("landlord", "name email")
-      .sort({ createdAt: -1 });
-    res.status(200).json({ success: true, properties });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Approve property (Admin only)
-export const approveProperty = async (req, res) => {
-  try {
-    const { propertyId } = req.params;
-
-    const property = await Property.findByIdAndUpdate(
-      propertyId,
-      { verificationStatus: "approved", isPublished: true },
-      { new: true }
-    );
-
-    if (!property) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Property not found" });
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Property approved", property });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// Reject property (Admin only)
-export const rejectProperty = async (req, res) => {
-  try {
-    const { propertyId } = req.params;
-    const { rejectionReason } = req.body;
-
-    const property = await Property.findByIdAndUpdate(
-      propertyId,
-      { verificationStatus: "rejected", isPublished: false, rejectionReason },
-      { new: true }
-    );
-
-    if (!property) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Property not found" });
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Property rejected", property });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
   }
 };

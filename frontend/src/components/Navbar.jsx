@@ -42,6 +42,11 @@ const Navbar = () => {
         <Link to="/" className="btn btn-ghost text-xl">
           🏠 <span className="font-bold">Roomify</span>
         </Link>
+        {user && (
+          <Link to="/forum" className="btn btn-ghost">
+            Forum
+          </Link>
+        )}
       </div>
 
       <div className="flex-none gap-2">
