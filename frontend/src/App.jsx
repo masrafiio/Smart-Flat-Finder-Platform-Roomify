@@ -8,6 +8,7 @@ import LandlordProfilePage from "./pages/LandlordProfilePage";
 import PropertyDetails from "./pages/PropertyDetails";
 import BookingPage from "./pages/BookingPage";
 import UserProfilePage from "./pages/UserProfilePage";
+import ForumPage from "./pages/ForumPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -69,6 +70,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <UserProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/forum"
+        element={
+          <ProtectedRoute>
+            <ForumPage />
           </ProtectedRoute>
         }
       />
