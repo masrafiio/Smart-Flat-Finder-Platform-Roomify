@@ -7,8 +7,8 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+// import notificationRoutes from "./routes/notificationRoutes.js"; // Not needed - using email only
 // import forumRoutes from "./routes/forumRoutes.js";
-// import notificationRoutes from "./routes/notificationRoutes.js";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -33,8 +33,8 @@ app.use("/api/property", propertyRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/report", reportRoutes);
+// app.use("/api/notification", notificationRoutes); // Not needed - using email only
 // app.use("/api/forum", forumRoutes);
-// app.use("/api/notification", notificationRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
