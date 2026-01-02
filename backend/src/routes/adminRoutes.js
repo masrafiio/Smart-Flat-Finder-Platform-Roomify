@@ -9,11 +9,13 @@ import {
   updateAdminProfile,
 } from "../controllers/adminController.js";
 import {
-  getAllProperties,
+  getAllPropertiesAdmin,
   getPendingVerifications,
   approveProperty,
   rejectProperty,
   deleteProperty,
+  suspendProperty,
+  unsuspendProperty,
 } from "../controllers/propertyController.js";
 import {
   getAllReports,
@@ -38,10 +40,12 @@ router.put("/users/:userId/unsuspend", unsuspendUser);
 router.delete("/users/:userId", deleteUser);
 
 // Property management
-router.get("/properties", getAllProperties);
+router.get("/properties", getAllPropertiesAdmin);
 router.get("/properties/pending", getPendingVerifications);
 router.put("/properties/:propertyId/approve", approveProperty);
 router.put("/properties/:propertyId/reject", rejectProperty);
+router.put("/properties/:propertyId/suspend", suspendProperty);
+router.put("/properties/:propertyId/unsuspend", unsuspendProperty);
 router.delete("/properties/:propertyId", deleteProperty);
 
 // Report management

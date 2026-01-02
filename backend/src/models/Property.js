@@ -69,6 +69,7 @@ const propertySchema = new mongoose.Schema(
       default: "pending",
     },
     isPublished: { type: Boolean, default: false },
+    isSuspended: { type: Boolean, default: false },
     rejectionReason: String,
 
     viewCount: { type: Number, default: 0 },

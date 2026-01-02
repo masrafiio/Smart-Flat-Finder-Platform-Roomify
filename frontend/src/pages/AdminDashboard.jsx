@@ -169,6 +169,28 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSuspendProperty = async (propertyId) => {
+    if (!confirm("Suspend this property?")) return;
+
+    try {
+      await api.put(`/admin/properties/${propertyId}/suspend`);
+      alert("Property suspended");
+      fetchProperties();
+    } catch (error) {
+      alert("Error: " + (error.response?.data?.message || "Failed"));
+    }
+  };
+
+  const handleUnsuspendProperty = async (propertyId) => {
+    try {
+      await api.put(`/admin/properties/${propertyId}/unsuspend`);
+      alert("Property unsuspended");
+      fetchProperties();
+    } catch (error) {
+      alert("Error: " + (error.response?.data?.message || "Failed"));
+    }
+  };
+
   const handleUpdateReport = async (reportId, status) => {
     try {
       await api.put(`/admin/reports/${reportId}`, {
@@ -566,12 +588,29 @@ const AdminDashboard = () => {
                           </span>
                         </td>
                         <td>
-                          <button
-                            className="btn btn-error btn-xs"
-                            onClick={() => handleDeleteProperty(prop._id)}
-                          >
-                            Delete
-                          </button>
+                          <div className="flex gap-1">
+                            {prop.isSuspended ? (
+                              <button
+                                className="btn btn-success btn-xs"
+                                onClick={() => handleUnsuspendProperty(prop._id)}
+                              >
+                                Unsuspend
+                              </button>
+                            ) : (
+                              <button
+                                className="btn btn-warning btn-xs"
+                                onClick={() => handleSuspendProperty(prop._id)}
+                              >
+                                Suspend
+                              </button>
+                            )}
+                            <button
+                              className="btn btn-error btn-xs"
+                              onClick={() => handleDeleteProperty(prop._id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
