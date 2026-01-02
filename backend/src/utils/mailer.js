@@ -62,3 +62,43 @@ export const sendAvailabilityChangeEmail = async (userEmail, propertyTitle, isAv
 
   await transporter.sendMail(mailOptions);
 };
+
+
+// Landloard //
+
+//FOR BOOKING REQUEST NOTIFICATION TO LANDLORD
+export const sendBookingRequestEmail = async (landlordEmail, tenantName, tenantEmail, propertyTitle, bookingType, requestedDate) => {
+  const requestType = bookingType === "visit" ? "Property Visit" : "Room Booking";
+  const dateLabel = bookingType === "visit" ? "Proposed Visit Date" : "Move-In Date";
+  
+  const mailOptions = {
+    from: process.env.EMAIL_USER?.trim(),
+    to: landlordEmail,
+    subject: `New ${requestType} Request: ${propertyTitle}`,
+    html: `
+      <h2>New ${requestType} Request</h2>
+      <p>You have received a new ${requestType.toLowerCase()} request for your property <strong>${propertyTitle}</strong>.</p>
+      
+      <h3>Tenant Details:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${tenantName}</li>
+        <li><strong>Email:</strong> ${tenantEmail}</li>
+      </ul>
+      
+      <h3>Request Details:</h3>
+      <ul>
+        <li><strong>Request Type:</strong> ${requestType}</li>
+        <li><strong>${dateLabel}:</strong> ${new Date(requestedDate).toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}</li>
+      </ul>
+      
+      <p>Please log in to your dashboard to review and respond to this request.</p>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};

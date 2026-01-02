@@ -1,6 +1,9 @@
 import Booking from "../models/Booking.js";
 import Property from "../models/Property.js";
 import User from "../models/User.js";
+//landlord ke mail pathai
+import { sendBookingRequestEmail } from "../utils/mailer.js"; //mailer theke email template import
+import Notification from "../models/Notification.js"; //notification model we are importing
 
 // Create a booking request (visit or room booking)
 export const createBookingRequest = async (req, res) => {
@@ -50,6 +53,37 @@ export const createBookingRequest = async (req, res) => {
       .populate("property", "title address rent images")
       .populate("tenant", "name email phone")
       .populate("landlord", "name email phone");
+
+    // Send email notification to landlord
+    try {
+      const landlord = await User.findById(property.landlord);
+      const tenant = await User.findById(tenantId);
+      const requestedDate = bookingType === "visit" ? proposedDate : moveInDate;
+      
+      console.log(`Sending booking request email to landlord ${landlord.email}...`);
+      await sendBookingRequestEmail(
+        landlord.email,
+        tenant.name,
+        tenant.email,
+        property.title,
+        bookingType,
+        requestedDate
+      );
+      console.log(`Booking request email sent to ${landlord.email}`);
+
+      // Create notification in database
+      await Notification.create({
+        user: landlord._id,
+        property: property._id,
+        type: "booking",
+        message: `New ${bookingType === "visit" ? "visit" : "booking"} request from ${tenant.name} for "${property.title}"`,
+      });
+    } catch (emailError) {
+      console.error(`Failed to send email to landlord:`, emailError.message); //still continue
+    }
+
+//////// done landlord///
+
 
     res.status(201).json({
       message: `${
