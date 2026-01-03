@@ -9,6 +9,7 @@ import PropertyDetails from "./pages/PropertyDetails";
 import BookingPage from "./pages/BookingPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import ForumPage from "./pages/ForumPage";
+import ComparePage from "./pages/ComparePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
@@ -78,6 +79,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <ForumPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/compare"
+        element={
+          <ProtectedRoute>
+            <ComparePage />
           </ProtectedRoute>
         }
       />
