@@ -25,6 +25,7 @@ const propertySchema = new mongoose.Schema(
       country: { type: String, default: "USA" },
     },
     googleMapsLink: { type: String, default: "" },
+    googleMapsEmbedLink: { type: String, default: "" }, // Separate field for embed link
 
     // Pricing
     rent: { type: Number, required: true },
