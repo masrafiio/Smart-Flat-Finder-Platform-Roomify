@@ -10,6 +10,7 @@ export const createProperty = async (req, res) => {
       propertyType,
       address,
       googleMapsLink,
+      googleMapsEmbedLink,
       rent,
       securityDeposit,
       totalRooms,
@@ -37,6 +38,7 @@ export const createProperty = async (req, res) => {
       propertyType,
       address,
       googleMapsLink: googleMapsLink || "",
+      googleMapsEmbedLink: googleMapsEmbedLink || "",
       rent,
       securityDeposit: securityDeposit || 0,
       totalRooms,
@@ -82,6 +84,7 @@ export const updateProperty = async (req, res) => {
       propertyType,
       address,
       googleMapsLink,
+      googleMapsEmbedLink,
       rent,
       securityDeposit,
       totalRooms,
@@ -99,6 +102,7 @@ export const updateProperty = async (req, res) => {
     if (propertyType) property.propertyType = propertyType;
     if (address) property.address = { ...property.address, ...address };
     if (googleMapsLink !== undefined) property.googleMapsLink = googleMapsLink;
+    if (googleMapsEmbedLink !== undefined) property.googleMapsEmbedLink = googleMapsEmbedLink;
     if (rent !== undefined) property.rent = rent;
     if (securityDeposit !== undefined)
       property.securityDeposit = securityDeposit;

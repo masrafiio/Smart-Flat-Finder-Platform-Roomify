@@ -56,6 +56,7 @@ const LandlordProfilePage = () => {
       country: "USA",
     },
     googleMapsLink: "",
+    googleMapsEmbedLink: "",
     rent: "",
     securityDeposit: "",
     totalRooms: "",
@@ -173,6 +174,7 @@ const LandlordProfilePage = () => {
           .map((i) => i.trim())
           .filter((i) => i),
         googleMapsLink: propertyForm.googleMapsLink || "",
+        googleMapsEmbedLink: propertyForm.googleMapsEmbedLink || "",
       };
 
       if (editingProperty) {
@@ -196,6 +198,7 @@ const LandlordProfilePage = () => {
           country: "USA",
         },
         googleMapsLink: "",
+        googleMapsEmbedLink: "",
         rent: "",
         securityDeposit: "",
         totalRooms: "",
@@ -239,6 +242,7 @@ const LandlordProfilePage = () => {
       propertyType: property.propertyType,
       address: property.address,
       googleMapsLink: property.googleMapsLink || "",
+      googleMapsEmbedLink: property.googleMapsEmbedLink || "",
       rent: property.rent,
       securityDeposit: property.securityDeposit,
       totalRooms: property.totalRooms,
@@ -453,6 +457,7 @@ const LandlordProfilePage = () => {
                   country: "USA",
                 },
                 googleMapsLink: "",
+                googleMapsEmbedLink: "",
                 rent: "",
                 securityDeposit: "",
                 totalRooms: "",
@@ -935,7 +940,7 @@ const LandlordProfilePage = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Google Maps Link</span>
+                    <span className="label-text">Google Maps Link (for opening in new tab)</span>
                   </label>
                   <input
                     type="url"
@@ -952,6 +957,28 @@ const LandlordProfilePage = () => {
                   <label className="label">
                     <span className="label-text-alt">
                       Right-click on Google Maps location → Share → Copy link
+                    </span>
+                  </label>
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Google Maps Embed Link (for map preview)</span>
+                  </label>
+                  <textarea
+                    className="textarea textarea-bordered h-24"
+                    value={propertyForm.googleMapsEmbedLink}
+                    onChange={(e) =>
+                      setPropertyForm({
+                        ...propertyForm,
+                        googleMapsEmbedLink: e.target.value,
+                      })
+                    }
+                    placeholder='Paste embed iframe code or URL (e.g., <iframe src="https://www.google.com/maps/embed?pb=..." />)'
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">
+                      Google Maps → Share → Embed a map → Copy HTML code
                     </span>
                   </label>
                 </div>
