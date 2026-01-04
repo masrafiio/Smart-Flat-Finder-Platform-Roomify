@@ -21,6 +21,31 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
+// FOR OTP VERIFICATION
+export const sendOTPEmail = async (userEmail, otp) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER?.trim(),
+    to: userEmail,
+    subject: 'Verify Your Email - Roomify',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #10b981;">Email Verification</h2>
+        <p>Thank you for registering with Roomify!</p>
+        <p>Your One-Time Password (OTP) is:</p>
+        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+          <h1 style="color: #1f2937; font-size: 32px; letter-spacing: 8px; margin: 0;">${otp}</h1>
+        </div>
+        <p><strong>This OTP will expire in 10 minutes.</strong></p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">This is an automated email, please do not reply.</p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 //FOR PRICE UPDATING NOTIFICATION
 
 export const sendPriceChangeEmail = async (userEmail, propertyTitle, oldPrice, newPrice) => {
@@ -64,7 +89,7 @@ export const sendAvailabilityChangeEmail = async (userEmail, propertyTitle, isAv
 };
 
 
-// Landloard //
+// Landlord //
 
 //FOR BOOKING REQUEST NOTIFICATION TO LANDLORD
 export const sendBookingRequestEmail = async (landlordEmail, tenantName, tenantEmail, propertyTitle, bookingType, requestedDate) => {

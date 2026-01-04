@@ -61,13 +61,21 @@ const RegisterPage = () => {
       const { data } = await api.post("/authentication/register", registerData);
       console.log("Registration response:", data);
 
-      // Show success message
-      setSuccess("Registration successful! Redirecting to login...");
-
-      // Redirect to login page after 2 seconds
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      
+      // For OTP
+      if (data.requiresOTP) {
+        // Store user data in sessionStorage for OTP verification
+        sessionStorage.setItem("registrationData", JSON.stringify(registerData));
+        sessionStorage.setItem("registrationEmail", data.email);
+        
+        // Show success message
+        setSuccess("OTP sent to your email! Redirecting to verification...");
+        
+        // Redirect to OTP page
+        setTimeout(() => {
+          navigate("/verify-otp");
+        }, 1500);
+      }
     } catch (err) {
       console.error("Registration error:", err);
       console.error("Error response:", err.response);
