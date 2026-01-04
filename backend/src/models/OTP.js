@@ -9,7 +9,7 @@ const otpSchema = new mongoose.Schema({
     default: "email_verification",
   },
   expiresAt: { type: Date, required: true },
-  isUsed: { type: Boolean, default: false },
+  isUsed: { type: Boolean, default: false }, // user verify krle truue
   createdAt: { type: Date, default: Date.now },
 });
 
