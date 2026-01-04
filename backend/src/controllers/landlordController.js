@@ -141,3 +141,23 @@ export const getLandlordPropertiesById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Get view history for landlord's properties
+export const getPropertyViewHistory = async (req, res) => {
+  try {
+    const landlordId = req.user._id;
+
+    const properties = await Property.find({ landlord: landlordId })
+      .populate({
+        path: "viewedBy.user",
+        select: "name email phone profilePicture",
+      })
+      .select("title viewedBy viewCount")
+      .sort({ "viewedBy.viewedAt": -1 });
+
+    res.status(200).json({ properties });
+  } catch (error) {
+    console.error("Error fetching view history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

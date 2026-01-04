@@ -267,18 +267,41 @@ export const getProperty = async (req, res) => {
       return res.status(404).json({ message: "Property not found" });
     }
 
-    // Increment view count (only if not the landlord viewing)
-    if (
-      !req.user ||
-      property.landlord._id.toString() !== req.user._id.toString()
-    ) {
-      property.viewCount += 1;
-      await property.save();
+    // Track view history (only for tenants, not landlords)
+    if (req.user && req.user.role === "tenant") {
+      const tenant = await User.findById(req.user._id);
+      if (!tenant.viewedProperties.includes(property._id)) {
+        tenant.viewedProperties.push(property._id);
+        await tenant.save();
+      }
     }
 
     res.status(200).json(property);
   } catch (error) {
     console.error("Error fetching property:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get tenant's view history
+export const getTenantHistory = async (req, res) => {
+  try {
+    console.log("Fetching history for tenant:", req.user._id);
+    const tenant = await User.findById(req.user._id)
+      .populate({
+        path: "viewedProperties",
+        populate: { path: "landlord", select: "name email phone" }
+      });
+
+    if (!tenant) {
+      console.log("Tenant not found");
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("Found", tenant.viewedProperties?.length || 0, "viewed properties");
+    res.status(200).json({ viewedProperties: tenant.viewedProperties || [] });
+  } catch (error) {
+    console.error("Error fetching history:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
