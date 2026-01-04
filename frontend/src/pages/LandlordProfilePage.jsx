@@ -178,12 +178,17 @@ const LandlordProfilePage = () => {
       };
 
       if (editingProperty) {
-        const response = await updateProperty(editingProperty._id, propertyData);
+        const response = await updateProperty(
+          editingProperty._id,
+          propertyData
+        );
         setSuccess("Property updated successfully!");
         // Update the property in the local state immediately
-        setProperties(properties.map(p => 
-          p._id === editingProperty._id ? response.property : p
-        ));
+        setProperties(
+          properties.map((p) =>
+            p._id === editingProperty._id ? response.property : p
+          )
+        );
       } else {
         await createProperty(propertyData);
         setSuccess("Property created successfully!");
@@ -687,7 +692,7 @@ const LandlordProfilePage = () => {
                       </div>
                       <div>
                         <p className="text-sm opacity-70">Rent</p>
-                        <p className="font-semibold">${property.rent}/month</p>
+                        <p className="font-semibold">৳{property.rent}/month</p>
                       </div>
                       <div>
                         <p className="text-sm opacity-70">Total Rooms</p>
@@ -944,7 +949,9 @@ const LandlordProfilePage = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Google Maps Link (for opening in new tab)</span>
+                    <span className="label-text">
+                      Google Maps Link (for opening in new tab)
+                    </span>
                   </label>
                   <input
                     type="url"
@@ -967,7 +974,9 @@ const LandlordProfilePage = () => {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Google Maps Embed Link (for map preview)</span>
+                    <span className="label-text">
+                      Google Maps Embed Link (for map preview)
+                    </span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered h-24"
@@ -990,7 +999,7 @@ const LandlordProfilePage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Monthly Rent ($) *</span>
+                      <span className="label-text">Monthly Rent (৳) *</span>
                     </label>
                     <input
                       type="number"
@@ -1008,7 +1017,7 @@ const LandlordProfilePage = () => {
 
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Security Deposit ($)</span>
+                      <span className="label-text">Security Deposit (৳)</span>
                     </label>
                     <input
                       type="number"

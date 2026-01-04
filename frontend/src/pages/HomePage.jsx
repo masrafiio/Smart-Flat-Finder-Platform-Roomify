@@ -318,7 +318,7 @@ const HomePage = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-2xl font-bold text-primary">
-                          ${property.rent}
+                          ৳{property.rent}
                           <span className="text-sm font-normal text-base-content/70">
                             /month
                           </span>

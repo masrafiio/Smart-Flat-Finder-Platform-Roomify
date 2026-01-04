@@ -13,7 +13,7 @@ import {
   getPendingVerifications,
   approveProperty,
   rejectProperty,
-  deleteProperty,
+  deletePropertyAdmin,
   suspendProperty,
   unsuspendProperty,
 } from "../controllers/propertyController.js";
@@ -46,7 +46,7 @@ router.put("/properties/:propertyId/approve", approveProperty);
 router.put("/properties/:propertyId/reject", rejectProperty);
 router.put("/properties/:propertyId/suspend", suspendProperty);
 router.put("/properties/:propertyId/unsuspend", unsuspendProperty);
-router.delete("/properties/:propertyId", deleteProperty);
+router.delete("/properties/:propertyId", deletePropertyAdmin);
 
 // Report management
 router.get("/reports", getAllReports);

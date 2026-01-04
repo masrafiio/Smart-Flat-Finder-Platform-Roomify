@@ -14,7 +14,7 @@ const UserProfilePage = () => {
   const [success, setSuccess] = useState("");
   const [properties, setProperties] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  
+
   // Report modal states
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportDescription, setReportDescription] = useState("");
@@ -57,23 +57,22 @@ const UserProfilePage = () => {
 
   const handleReportSubmit = async (e) => {
     e.preventDefault();
-    
+
     setReportLoading(true);
     setError("");
     setSuccess("");
-    
+
     try {
       await createReport({
         reportedItem: userId,
         itemType: "user",
-        description: reportDescription
+        description: reportDescription,
       });
-      
+
       setSuccess("Report submitted successfully!");
       setShowReportModal(false);
       setReportDescription("");
-      
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Error submitting report:", err);
@@ -85,14 +84,14 @@ const UserProfilePage = () => {
 
   const canReportUser = () => {
     if (!currentUser || !user) return false;
-    
+
     // Don't allow self-reporting
     if (currentUser.id === userId) return false;
-    
+
     // Landlords can report tenants and vice versa
     if (currentUser.role === "landlord" && user.role === "tenant") return true;
     if (currentUser.role === "tenant" && user.role === "landlord") return true;
-    
+
     return false;
   };
 
@@ -181,7 +180,7 @@ const UserProfilePage = () => {
             <span>{success}</span>
           </div>
         )}
-        
+
         {/* Back Button */}
         <button onClick={() => navigate(-1)} className="btn btn-ghost mb-4">
           ← Back
@@ -210,14 +209,14 @@ const UserProfilePage = () => {
                       <div className="badge badge-success">Verified</div>
                     )}
                   </div>
-                  
+
                   {/* Report Button */}
                   {canReportUser() && (
                     <button
                       onClick={() => setShowReportModal(true)}
                       className="btn btn-error btn-sm"
                     >
-                       Report User
+                      Report User
                     </button>
                   )}
                 </div>
@@ -322,7 +321,7 @@ const UserProfilePage = () => {
                       </p>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-lg font-bold text-primary">
-                          ${property.rent}/month
+                          ৳{property.rent}/month
                         </span>
                         <span className="badge badge-outline">
                           {property.availableRooms} rooms

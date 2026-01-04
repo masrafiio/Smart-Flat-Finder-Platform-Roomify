@@ -1,27 +1,10 @@
 import api from "../lib/axios";
 
-// Set auth token in headers
-const setAuthToken = () => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }
-  return {};
-};
-
 // ============ Property Reviews (Comments) ============
 
 // Post a comment on a property
 export const createPropertyReview = async (propertyId, comment) => {
-  const response = await api.post(
-    "/review/property",
-    { propertyId, comment },
-    setAuthToken()
-  );
+  const response = await api.post("/review/property", { propertyId, comment });
   return response.data;
 };
 
@@ -35,7 +18,7 @@ export const getPropertyReviews = async (propertyId) => {
 
 // Rate a user (landlord ↔ tenant)
 export const rateUser = async (ratingData) => {
-  const response = await api.post("/review/user", ratingData, setAuthToken());
+  const response = await api.post("/review/user", ratingData);
   return response.data;
 };
 
@@ -47,9 +30,6 @@ export const getUserRatings = async (userId) => {
 
 // Get my rating for a specific user
 export const getMyRatingForUser = async (userId) => {
-  const response = await api.get(
-    `/review/user/${userId}/my-rating`,
-    setAuthToken()
-  );
+  const response = await api.get(`/review/user/${userId}/my-rating`);
   return response.data;
 };

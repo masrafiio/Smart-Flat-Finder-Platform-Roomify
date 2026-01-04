@@ -573,7 +573,7 @@ const AdminDashboard = () => {
                         <td>{prop.title}</td>
                         <td>{prop.landlord?.name || "Unknown"}</td>
                         <td className="capitalize">{prop.propertyType}</td>
-                        <td>${prop.rent}</td>
+                        <td>৳{prop.rent}</td>
                         <td>
                           <span
                             className={`badge ${
@@ -592,7 +592,9 @@ const AdminDashboard = () => {
                             {prop.isSuspended ? (
                               <button
                                 className="btn btn-success btn-xs"
-                                onClick={() => handleUnsuspendProperty(prop._id)}
+                                onClick={() =>
+                                  handleUnsuspendProperty(prop._id)
+                                }
                               >
                                 Unsuspend
                               </button>
@@ -648,7 +650,7 @@ const AdminDashboard = () => {
                           {prop.propertyType}
                         </span>
                         <span className="badge badge-primary">
-                          ${prop.rent}/month
+                          ৳{prop.rent}/month
                         </span>
                       </div>
                       <p className="text-sm">
@@ -770,9 +772,7 @@ const AdminDashboard = () => {
                     className="modal"
                   >
                     <div className="modal-box">
-                      <h3 className="font-bold text-lg mb-4">
-                        Report Details
-                      </h3>
+                      <h3 className="font-bold text-lg mb-4">Report Details</h3>
 
                       <div className="space-y-3">
                         <div>

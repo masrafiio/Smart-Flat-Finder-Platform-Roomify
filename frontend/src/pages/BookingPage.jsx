@@ -332,7 +332,7 @@ const BookingPage = () => {
                         {currentProperty.property.address.city}
                       </p>
                       <p className="text-sm mt-2">
-                        <span className="font-semibold">Rent:</span> $
+                        <span className="font-semibold">Rent:</span> ৳
                         {currentProperty.property.rent}/month
                       </p>
                       {currentProperty.moveInDate && (
@@ -400,7 +400,7 @@ const BookingPage = () => {
                                 </span>
                               </div>
                               <p className="text-sm opacity-70">
-                                {booking.property.address.city} • $
+                                {booking.property.address.city} • ৳
                                 {booking.property.rent}/month
                               </p>
 
