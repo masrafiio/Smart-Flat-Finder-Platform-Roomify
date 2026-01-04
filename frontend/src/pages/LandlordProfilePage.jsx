@@ -73,6 +73,7 @@ const LandlordProfilePage = () => {
   const [tenantForm, setTenantForm] = useState({
     name: "",
     gender: "",
+    
     occupation: "",
   });
   const [addingTenantTo, setAddingTenantTo] = useState(null);

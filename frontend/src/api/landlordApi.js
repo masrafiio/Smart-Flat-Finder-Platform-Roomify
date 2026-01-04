@@ -53,3 +53,9 @@ export const removeCurrentTenant = async (propertyId, tenantId) => {
   const response = await api.delete(`/property/${propertyId}/tenants/${tenantId}`);
   return response.data;
 };
+
+// Get property view history
+export const getPropertyViewHistory = async () => {
+  const response = await api.get("/landlord/view-history");
+  return response.data;
+};
