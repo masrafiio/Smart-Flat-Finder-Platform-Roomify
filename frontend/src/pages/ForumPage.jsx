@@ -158,7 +158,7 @@ const ForumPage = () => {
                           )}
                           {post.budgetMin && (
                             <span className="badge badge-outline">
-                              💰 ${post.budgetMin} - ${post.budgetMax || "N/A"}
+                              💰 ৳{post.budgetMin} - ৳{post.budgetMax || "N/A"}
                             </span>
                           )}
                           {post.propertyType && (

@@ -24,7 +24,9 @@ const ComparePage = () => {
 
     setLoading(true);
     try {
-      const response = await api.get(`/property?search=${encodeURIComponent(term)}`);
+      const response = await api.get(
+        `/property?search=${encodeURIComponent(term)}`
+      );
       setResults(response.data.properties || []);
     } catch (error) {
       console.error("Error searching properties:", error);
@@ -82,7 +84,8 @@ const ComparePage = () => {
             alt={property.title}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/400x300?text=No+Image";
+              e.target.src =
+                "https://via.placeholder.com/400x300?text=No+Image";
             }}
           />
         ) : (
@@ -93,14 +96,16 @@ const ComparePage = () => {
       </figure>
       <div className="card-body p-4">
         <h2 className="card-title text-lg">{property.title}</h2>
-        
+
         <div className="space-y-3 text-sm">
           {/* Price */}
           <div className="bg-primary/10 p-3 rounded-lg">
-            <p className="font-semibold text-primary text-2xl">${property.rent}/month</p>
+            <p className="font-semibold text-primary text-2xl">
+              ৳{property.rent}/month
+            </p>
             {property.securityDeposit > 0 && (
               <p className="text-xs opacity-70 mt-1">
-                + ${property.securityDeposit} deposit
+                + ৳{property.securityDeposit} deposit
               </p>
             )}
           </div>
@@ -135,10 +140,7 @@ const ComparePage = () => {
             {property.amenities && property.amenities.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {property.amenities.slice(0, 5).map((amenity, index) => (
-                  <span
-                    key={index}
-                    className="badge badge-sm badge-outline"
-                  >
+                  <span key={index} className="badge badge-sm badge-outline">
                     {amenity}
                   </span>
                 ))}
@@ -197,7 +199,9 @@ const ComparePage = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">{property.landlord.name}</p>
+                  <p className="font-semibold text-sm">
+                    {property.landlord.name}
+                  </p>
                   {property.landlord.averageRating > 0 && (
                     <p className="text-xs opacity-70">
                       ⭐ {property.landlord.averageRating.toFixed(1)} rating
@@ -259,7 +263,7 @@ const ComparePage = () => {
                 {loading1 && (
                   <span className="loading loading-spinner loading-sm absolute right-3 top-3"></span>
                 )}
-                
+
                 {/* Search Results Dropdown */}
                 {searchResults1.length > 0 && !selectedProperty1 && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-base-100 shadow-xl rounded-lg max-h-64 overflow-y-auto z-10 border border-base-300">
@@ -271,7 +275,7 @@ const ComparePage = () => {
                       >
                         <p className="font-semibold">{property.title}</p>
                         <p className="text-sm opacity-70">
-                          {property.address.city} - ${property.rent}/month
+                          {property.address.city} - ৳{property.rent}/month
                         </p>
                       </div>
                     ))}
@@ -303,7 +307,7 @@ const ComparePage = () => {
                 {loading2 && (
                   <span className="loading loading-spinner loading-sm absolute right-3 top-3"></span>
                 )}
-                
+
                 {/* Search Results Dropdown */}
                 {searchResults2.length > 0 && !selectedProperty2 && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-base-100 shadow-xl rounded-lg max-h-64 overflow-y-auto z-10 border border-base-300">
@@ -315,7 +319,7 @@ const ComparePage = () => {
                       >
                         <p className="font-semibold">{property.title}</p>
                         <p className="text-sm opacity-70">
-                          {property.address.city} - ${property.rent}/month
+                          {property.address.city} - ৳{property.rent}/month
                         </p>
                       </div>
                     ))}
@@ -349,8 +353,8 @@ const ComparePage = () => {
               ></path>
             </svg>
             <span>
-              Start typing in either search box to find properties. You can compare
-              prices, locations, amenities, and more!
+              Start typing in either search box to find properties. You can
+              compare prices, locations, amenities, and more!
             </span>
           </div>
         )}

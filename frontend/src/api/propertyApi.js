@@ -1,18 +1,5 @@
 import api from "../lib/axios";
 
-// Set auth token in headers
-const setAuthToken = () => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  }
-  return {};
-};
-
 // Get all properties with filters
 export const getAllProperties = async (filters = {}) => {
   const params = new URLSearchParams();
@@ -26,28 +13,24 @@ export const getAllProperties = async (filters = {}) => {
 
 // Get single property by ID
 export const getPropertyById = async (id) => {
-  const response = await api.get(`/property/${id}`, setAuthToken());
+  const response = await api.get(`/property/${id}`);
   return response.data;
 };
 
 // Create new property (landlord only)
 export const createProperty = async (propertyData) => {
-  const response = await api.post("/property", propertyData, setAuthToken());
+  const response = await api.post("/property", propertyData);
   return response.data;
 };
 
 // Update property (landlord only)
 export const updateProperty = async (id, propertyData) => {
-  const response = await api.put(
-    `/property/${id}`,
-    propertyData,
-    setAuthToken()
-  );
+  const response = await api.put(`/property/${id}`, propertyData);
   return response.data;
 };
 
 // Delete property (landlord only)
 export const deleteProperty = async (id) => {
-  const response = await api.delete(`/property/${id}`, setAuthToken());
+  const response = await api.delete(`/property/${id}`);
   return response.data;
 };

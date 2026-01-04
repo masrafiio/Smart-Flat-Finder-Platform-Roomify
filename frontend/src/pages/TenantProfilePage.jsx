@@ -304,19 +304,19 @@ const TenantProfilePage = () => {
             className={`tab ${activeTab === "profile" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("profile")}
           >
-             Profile
+            Profile
           </a>
           <a
             className={`tab ${activeTab === "bookings" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("bookings")}
           >
-             Bookings
+            Bookings
           </a>
           <a
             className={`tab ${activeTab === "wishlist" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("wishlist")}
           >
-             Wishlist
+            Wishlist
           </a>
         </div>
 
@@ -689,7 +689,7 @@ const TenantProfilePage = () => {
                           `, ${property.address.state}`}
                       </p>
                       <p className="text-xl font-semibold text-primary">
-                        ${property.rent}/month
+                        ৳{property.rent}/month
                       </p>
                       <div className="flex gap-2 mt-2">
                         <span className="badge badge-sm">

@@ -246,7 +246,7 @@ const PropertyDetails = () => {
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-primary">
-                  ${property.rent}
+                  ৳{property.rent}
                 </p>
                 <p className="text-sm opacity-70">per month</p>
               </div>
@@ -510,13 +510,13 @@ const PropertyDetails = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Monthly Rent</span>
-                    <span className="font-bold">${property.rent}</span>
+                    <span className="font-bold">৳{property.rent}</span>
                   </div>
                   {property.securityDeposit > 0 && (
                     <div className="flex justify-between">
                       <span>Security Deposit</span>
                       <span className="font-bold">
-                        ${property.securityDeposit}
+                        ৳{property.securityDeposit}
                       </span>
                     </div>
                   )}

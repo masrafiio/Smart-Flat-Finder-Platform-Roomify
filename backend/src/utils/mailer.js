@@ -7,7 +7,7 @@ dotenv.config();
 const emailUser = process.env.EMAIL_USER?.trim();
 const emailPass = process.env.EMAIL_PASS?.trim();
 
-console.log('Email Config:', {
+console.log("Email Config:", {
   user: emailUser,
   passLength: emailPass?.length,
   passStart: emailPass?.substring(0, 4),
@@ -21,13 +21,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 // FOR OTP VERIFICATION
 export const sendOTPEmail = async (userEmail, otp) => {
   const mailOptions = {
     from: process.env.EMAIL_USER?.trim(),
     to: userEmail,
-    subject: 'Verify Your Email - Roomify',
+    subject: "Verify Your Email - Roomify",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #10b981;">Email Verification</h2>
@@ -48,7 +47,12 @@ export const sendOTPEmail = async (userEmail, otp) => {
 
 //FOR PRICE UPDATING NOTIFICATION
 
-export const sendPriceChangeEmail = async (userEmail, propertyTitle, oldPrice, newPrice) => {
+export const sendPriceChangeEmail = async (
+  userEmail,
+  propertyTitle,
+  oldPrice,
+  newPrice
+) => {
   const mailOptions = {
     from: process.env.EMAIL_USER?.trim(),
     to: userEmail,
@@ -56,8 +60,8 @@ export const sendPriceChangeEmail = async (userEmail, propertyTitle, oldPrice, n
     html: `
       <h2>Price Change Notification</h2>
       <p>The price for <strong>${propertyTitle}</strong> in your wishlist has been updated.</p>
-      <p><strong>Previous Price:</strong> $${oldPrice}</p>
-      <p><strong>New Price:</strong> $${newPrice}</p>
+      <p><strong>Previous Price:</strong> ৳${oldPrice}</p>
+      <p><strong>New Price:</strong> ৳${newPrice}</p>
       <p><strong>LESSSGOOO.. BRO BUY IT ALREADY...</p>
     `,
   };
@@ -66,10 +70,14 @@ export const sendPriceChangeEmail = async (userEmail, propertyTitle, oldPrice, n
 };
 
 //FOR AVAILABILITY STATUS CHANGE NOTIFICATION
-export const sendAvailabilityChangeEmail = async (userEmail, propertyTitle, isAvailable) => {
+export const sendAvailabilityChangeEmail = async (
+  userEmail,
+  propertyTitle,
+  isAvailable
+) => {
   const status = isAvailable ? "Available" : "Not Available";
   const statusColor = isAvailable ? "#10b981" : "#ef4444";
-  
+
   const mailOptions = {
     from: process.env.EMAIL_USER?.trim(),
     to: userEmail,
@@ -78,9 +86,10 @@ export const sendAvailabilityChangeEmail = async (userEmail, propertyTitle, isAv
       <h2>Availability Change Notification</h2>
       <p>The availability status for <strong>${propertyTitle}</strong> in your wishlist has changed.</p>
       <p><strong>New Status:</strong> <span style="color: ${statusColor};">${status}</span></p>
-      ${isAvailable ? 
-        '<p>YOOOO! This property is now available. BOOK IT FAST FAST!</p>' : 
-        '<p>BOOOO! This property is currently not available. You are late bro.</p>'
+      ${
+        isAvailable
+          ? "<p>YOOOO! This property is now available. BOOK IT FAST FAST!</p>"
+          : "<p>BOOOO! This property is currently not available. You are late bro.</p>"
       }
     `,
   };
@@ -88,14 +97,22 @@ export const sendAvailabilityChangeEmail = async (userEmail, propertyTitle, isAv
   await transporter.sendMail(mailOptions);
 };
 
-
 // Landlord //
 
 //FOR BOOKING REQUEST NOTIFICATION TO LANDLORD
-export const sendBookingRequestEmail = async (landlordEmail, tenantName, tenantEmail, propertyTitle, bookingType, requestedDate) => {
-  const requestType = bookingType === "visit" ? "Property Visit" : "Room Booking";
-  const dateLabel = bookingType === "visit" ? "Proposed Visit Date" : "Move-In Date";
-  
+export const sendBookingRequestEmail = async (
+  landlordEmail,
+  tenantName,
+  tenantEmail,
+  propertyTitle,
+  bookingType,
+  requestedDate
+) => {
+  const requestType =
+    bookingType === "visit" ? "Property Visit" : "Room Booking";
+  const dateLabel =
+    bookingType === "visit" ? "Proposed Visit Date" : "Move-In Date";
+
   const mailOptions = {
     from: process.env.EMAIL_USER?.trim(),
     to: landlordEmail,
@@ -113,12 +130,14 @@ export const sendBookingRequestEmail = async (landlordEmail, tenantName, tenantE
       <h3>Request Details:</h3>
       <ul>
         <li><strong>Request Type:</strong> ${requestType}</li>
-        <li><strong>${dateLabel}:</strong> ${new Date(requestedDate).toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        })}</li>
+        <li><strong>${dateLabel}:</strong> ${new Date(
+      requestedDate
+    ).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}</li>
       </ul>
       
       <p>Please log in to your dashboard to review and respond to this request.</p>

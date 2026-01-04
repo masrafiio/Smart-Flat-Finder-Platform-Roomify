@@ -1,7 +1,10 @@
 import Property from "../models/Property.js";
 import User from "../models/User.js";
-import Notification from "../models/Notification.js";  // for notification_create --> db fetching 
-import { sendPriceChangeEmail, sendAvailabilityChangeEmail } from "../utils/mailer.js"; // to sent the email 
+import Notification from "../models/Notification.js"; // for notification_create --> db fetching
+import {
+  sendPriceChangeEmail,
+  sendAvailabilityChangeEmail,
+} from "../utils/mailer.js"; // to sent the email
 
 // Create a new property (landlord only)
 export const createProperty = async (req, res) => {
@@ -108,7 +111,8 @@ export const updateProperty = async (req, res) => {
     if (propertyType) property.propertyType = propertyType;
     if (address) property.address = { ...property.address, ...address };
     if (googleMapsLink !== undefined) property.googleMapsLink = googleMapsLink;
-    if (googleMapsEmbedLink !== undefined) property.googleMapsEmbedLink = googleMapsEmbedLink;
+    if (googleMapsEmbedLink !== undefined)
+      property.googleMapsEmbedLink = googleMapsEmbedLink;
     if (rent !== undefined) property.rent = rent;
     if (securityDeposit !== undefined)
       property.securityDeposit = securityDeposit;
@@ -120,34 +124,42 @@ export const updateProperty = async (req, res) => {
     if (availableFrom) property.availableFrom = availableFrom;
     if (isAvailable !== undefined) property.isAvailable = isAvailable;
 
-    console.log(`Before save - Old rent: ${oldRent}, New rent from request: ${rent}`);
-    console.log(`Before save - Old availableRooms: ${oldAvailableRooms}, New availableRooms from request: ${availableRooms}`);
-    await property.save(); 
-    
+    console.log(
+      `Before save - Old rent: ${oldRent}, New rent from request: ${rent}`
+    );
+    console.log(
+      `Before save - Old availableRooms: ${oldAvailableRooms}, New availableRooms from request: ${availableRooms}`
+    );
+    await property.save();
+
     console.log(`After save - Property rent in DB: ${property.rent}`);
-    console.log(`After save - Property availableRooms in DB: ${property.availableRooms}`);
+    console.log(
+      `After save - Property availableRooms in DB: ${property.availableRooms}`
+    );
 
     // Get users with this property in wishlist for notifications
     const usersWithWishlist = await User.find({ wishlist: property._id });
 
     // Send price change notifications if rent changed
     if (rent !== undefined && oldRent !== rent) {
-      console.log(`Price changed from $${oldRent} to $${rent}`);
+      console.log(`Price changed from ৳${oldRent} to ৳${rent}`);
       const usersWithWishlist = await User.find({ wishlist: property._id });
-      console.log(`Found ${usersWithWishlist.length} users with property in wishlist`);
-      
+      console.log(
+        `Found ${usersWithWishlist.length} users with property in wishlist`
+      );
+
       for (const user of usersWithWishlist) {
         try {
           console.log(`Sending price change email to ${user.email}...`);
           await sendPriceChangeEmail(user.email, property.title, oldRent, rent);
           console.log(`Price change email sent to ${user.email}`);
-          
+
           // db update kri bhai
           await Notification.create({
             user: user._id,
             property: property._id,
             type: "price_change",
-            message: `Price for "${property.title}" changed from $${oldRent} to $${rent}`,
+            message: `Price for "${property.title}" changed from ৳${oldRent} to ৳${rent}`,
           });
         } catch (emailError) {
           console.error(`Failed to notify ${user.email}:`, emailError.message);
@@ -159,26 +171,43 @@ export const updateProperty = async (req, res) => {
     if (availableRooms !== undefined) {
       const wasAvailable = oldAvailableRooms > 0;
       const isNowAvailable = availableRooms > 0;
-      
+
       //chng hoilei email pathai (0 <-> >0)
       if (wasAvailable !== isNowAvailable) {
-        console.log(`Available rooms changed from ${oldAvailableRooms} to ${availableRooms} - Status: ${wasAvailable ? 'Available' : 'Unavailable'} → ${isNowAvailable ? 'Available' : 'Unavailable'}`);
-        console.log(`Found ${usersWithWishlist.length} users with property in wishlist`);
-        
+        console.log(
+          `Available rooms changed from ${oldAvailableRooms} to ${availableRooms} - Status: ${
+            wasAvailable ? "Available" : "Unavailable"
+          } → ${isNowAvailable ? "Available" : "Unavailable"}`
+        );
+        console.log(
+          `Found ${usersWithWishlist.length} users with property in wishlist`
+        );
+
         for (const user of usersWithWishlist) {
           try {
-            console.log(`Sending availability change email to ${user.email}...`);
-            await sendAvailabilityChangeEmail(user.email, property.title, isNowAvailable);
+            console.log(
+              `Sending availability change email to ${user.email}...`
+            );
+            await sendAvailabilityChangeEmail(
+              user.email,
+              property.title,
+              isNowAvailable
+            );
             console.log(`Availability change email sent to ${user.email}`);
-            
+
             await Notification.create({
               user: user._id,
               property: property._id,
               type: "availability_change",
-              message: `"${property.title}" is now ${isNowAvailable ? "available" : "not available"}`,
+              message: `"${property.title}" is now ${
+                isNowAvailable ? "available" : "not available"
+              }`,
             });
           } catch (emailError) {
-            console.error(`Failed to notify ${user.email}:`, emailError.message);
+            console.error(
+              `Failed to notify ${user.email}:`,
+              emailError.message
+            );
           }
         }
       }
@@ -426,6 +455,28 @@ export const unsuspendProperty = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Property unsuspended", property });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete property (Admin only) - no ownership check
+export const deletePropertyAdmin = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    const property = await Property.findByIdAndDelete(propertyId);
+
+    if (!property) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Property deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting property:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
