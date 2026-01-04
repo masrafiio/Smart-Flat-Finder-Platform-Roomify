@@ -7,6 +7,7 @@ import {
   getAllProperties,
   addCurrentTenant,
   removeCurrentTenant,
+  getTenantHistory,
 } from "../controllers/propertyController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -14,7 +15,8 @@ const router = express.Router();
 
 // Public routes
 router.get("/", getAllProperties);
-router.get("/:id", getProperty);
+router.get("/history", protect, authorize("tenant"), getTenantHistory);
+router.get("/:id", protect, getProperty);
 
 // Protected routes (landlords only)
 router.post("/", protect, authorize("landlord"), createProperty);
