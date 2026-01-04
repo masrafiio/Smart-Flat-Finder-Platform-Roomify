@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import OTPPage from "./pages/OTPPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import TenantProfilePage from "./pages/TenantProfilePage";
 import LandlordProfilePage from "./pages/LandlordProfilePage";
@@ -17,6 +18,7 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify-otp" element={<OTPPage />} />
 
       <Route
         path="/"
