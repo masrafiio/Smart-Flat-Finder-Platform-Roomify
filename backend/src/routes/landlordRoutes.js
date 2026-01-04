@@ -5,6 +5,7 @@ import {
   getLandlordProperties,
   getLandlordStats,
   getLandlordPropertiesById,
+  getPropertyViewHistory,
 } from "../controllers/landlordController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -23,5 +24,8 @@ router.get("/properties/:userId", getLandlordPropertiesById);
 
 // Stats routes
 router.get("/stats", authorize("landlord"), getLandlordStats);
+
+// View history route
+router.get("/view-history", authorize("landlord"), getPropertyViewHistory);
 
 export default router;

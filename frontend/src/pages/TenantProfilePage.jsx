@@ -20,6 +20,7 @@ const TenantProfilePage = () => {
   const [bookings, setBookings] = useState([]);
   const [currentProperty, setCurrentProperty] = useState(null);
   const [wishlist, setWishlist] = useState([]);
+  const [history, setHistory] = useState([]); 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bookingsLoading, setBookingsLoading] = useState(false);
@@ -114,12 +115,24 @@ const TenantProfilePage = () => {
     }
   };
 
+  const fetchHistory = async () => {
+    try {
+      const { data } = await api.get("/property/history");
+      setHistory(data.viewedProperties);
+    } catch (err) {
+      console.error("Error fetching history:", err);
+      setError("Failed to load history");
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "bookings" && !bookingsFetched) {
       fetchBookings();
       fetchCurrentProperty();
     } else if (activeTab === "wishlist" && !wishlistFetched) {
       fetchWishlist();
+    } else if (activeTab === "history" && history.length === 0) {
+      fetchHistory();
     }
   }, [activeTab, bookingsFetched, wishlistFetched]);
 
@@ -317,6 +330,12 @@ const TenantProfilePage = () => {
             onClick={() => setActiveTab("wishlist")}
           >
             Wishlist
+          </a>
+          <a
+            className={`tab ${activeTab === "history" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("history")}
+          >
+            📜 History
           </a>
         </div>
 
@@ -713,6 +732,59 @@ const TenantProfilePage = () => {
                           className="btn btn-error btn-sm"
                         >
                           Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+
+
+        {activeTab === "history" && (
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold">Viewing History</h3>
+            {history.length === 0 ? (
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body text-center">
+                  <p className="text-gray-600">No viewing history yet.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {history.map((property) => (
+                  <div key={property._id} className="card bg-base-100 shadow-xl">
+                    {property.images?.[0] && (
+                      <figure className="h-48">
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </figure>
+                    )}
+                    <div className="card-body">
+                      <h4 className="card-title">{property.title}</h4>
+                      <p className="text-gray-600 text-sm">
+                        📍 {property.address?.street && `${property.address.street}, `}
+                        {property.address?.city}
+                        {property.address?.state && `, ${property.address.state}`}
+                      </p>
+                      <p className="text-xl font-semibold text-primary">
+                        ${property.rent}/month
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Landlord: {property.landlord?.name || "N/A"}
+                      </p>
+                      <div className="card-actions justify-end mt-4">
+                        <button
+                          onClick={() => navigate(`/property/${property._id}`)}
+                          className="btn btn-primary btn-sm"
+                        >
+                          View Again
                         </button>
                       </div>
                     </div>

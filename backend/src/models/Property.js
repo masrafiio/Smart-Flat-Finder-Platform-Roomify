@@ -74,6 +74,14 @@ const propertySchema = new mongoose.Schema(
     rejectionReason: String,
 
     viewCount: { type: Number, default: 0 },
+    
+    // Track who viewed this property
+    viewedBy: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        viewedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
