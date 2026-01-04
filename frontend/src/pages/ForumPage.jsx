@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../lib/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -13,7 +12,6 @@ const ForumPage = () => {
     content: "",
   });
   const [currentUser, setCurrentUser] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -38,7 +36,7 @@ const ForumPage = () => {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    
+
     if (!newPost.title.trim() || !newPost.content.trim()) {
       alert("Please fill in all fields");
       return;
@@ -140,15 +138,23 @@ const ForumPage = () => {
                       <p className="text-base-content/80 whitespace-pre-wrap">
                         {post.content}
                       </p>
-                      
+
                       {/* Optional Details */}
-                      {(post.city || post.area || post.budgetMin || post.budgetMax || post.propertyType) && (
+                      {(post.city ||
+                        post.area ||
+                        post.budgetMin ||
+                        post.budgetMax ||
+                        post.propertyType) && (
                         <div className="flex flex-wrap gap-2 mt-3">
                           {post.city && (
-                            <span className="badge badge-outline">📍 {post.city}</span>
+                            <span className="badge badge-outline">
+                              📍 {post.city}
+                            </span>
                           )}
                           {post.area && (
-                            <span className="badge badge-outline">{post.area}</span>
+                            <span className="badge badge-outline">
+                              {post.area}
+                            </span>
                           )}
                           {post.budgetMin && (
                             <span className="badge badge-outline">
@@ -165,27 +171,29 @@ const ForumPage = () => {
                     </div>
 
                     {/* Delete Button (for post author or admin) */}
-                    {currentUser && (currentUser._id === post.author?._id || currentUser.role === "admin") && (
-                      <button
-                        onClick={() => handleDeletePost(post._id)}
-                        className="btn btn-ghost btn-sm text-error"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                    {currentUser &&
+                      (currentUser._id === post.author?._id ||
+                        currentUser.role === "admin") && (
+                        <button
+                          onClick={() => handleDeletePost(post._id)}
+                          className="btn btn-ghost btn-sm text-error"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    )}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      )}
                   </div>
                 </div>
               </div>

@@ -34,9 +34,6 @@ const PropertyDetails = () => {
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-  // Map modal state
-  const [showMapModal, setShowMapModal] = useState(false);
-
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -408,18 +405,26 @@ const PropertyDetails = () => {
               <div className="card bg-base-100 shadow-xl">
                 <div className="card-body">
                   <h2 className="card-title">Location on Map</h2>
-                  
+
                   {/* If embedLink is provided, use it directly without parsing */}
                   {property.googleMapsEmbedLink ? (
-                    <div 
+                    <div
                       className="w-full h-96 rounded-lg overflow-hidden cursor-pointer relative group"
-                      onClick={() => window.open(property.googleMapsLink || property.googleMapsEmbedLink, '_blank')}
+                      onClick={() =>
+                        window.open(
+                          property.googleMapsLink ||
+                            property.googleMapsEmbedLink,
+                          "_blank"
+                        )
+                      }
                     >
                       <iframe
                         src={
                           // Extract src from iframe code if present, otherwise use as is
-                          property.googleMapsEmbedLink.includes('<iframe') 
-                            ? property.googleMapsEmbedLink.match(/src=["']([^"']+)["']/)?.[1] || property.googleMapsEmbedLink
+                          property.googleMapsEmbedLink.includes("<iframe")
+                            ? property.googleMapsEmbedLink.match(
+                                /src=["']([^"']+)["']/
+                              )?.[1] || property.googleMapsEmbedLink
                             : property.googleMapsEmbedLink
                         }
                         width="100%"
@@ -437,40 +442,59 @@ const PropertyDetails = () => {
                         </span>
                       </div>
                     </div>
-                  ) : (property.googleMapsLink.includes('goo.gl') || property.googleMapsLink.includes('maps.app.goo.gl')) && !property.googleMapsLink.includes('<iframe') ? (
+                  ) : (property.googleMapsLink.includes("goo.gl") ||
+                      property.googleMapsLink.includes("maps.app.goo.gl")) &&
+                    !property.googleMapsLink.includes("<iframe") ? (
                     // For shortened links without embed, show a placeholder
-                    <div 
+                    <div
                       className="w-full h-96 rounded-lg overflow-hidden cursor-pointer bg-base-200 flex flex-col items-center justify-center gap-4 hover:bg-base-300 transition-all"
-                      onClick={() => window.open(property.googleMapsLink, '_blank')}
+                      onClick={() =>
+                        window.open(property.googleMapsLink, "_blank")
+                      }
                     >
                       <div className="text-6xl">🗺️</div>
                       <div className="text-center px-4">
-                        <p className="text-lg font-semibold mb-2">View Location on Google Maps</p>
-                        <p className="text-sm opacity-70">Click here to open the map in a new tab</p>
+                        <p className="text-lg font-semibold mb-2">
+                          View Location on Google Maps
+                        </p>
+                        <p className="text-sm opacity-70">
+                          Click here to open the map in a new tab
+                        </p>
                         <div className="mt-4">
-                          <div className="badge badge-primary">📍 {property.address.city}</div>
+                          <div className="badge badge-primary">
+                            📍 {property.address.city}
+                          </div>
                         </div>
                       </div>
                     </div>
                   ) : (
                     // Fallback for links without embed - show placeholder
-                    <div 
+                    <div
                       className="w-full h-96 rounded-lg overflow-hidden cursor-pointer bg-base-200 flex flex-col items-center justify-center gap-4 hover:bg-base-300 transition-all"
-                      onClick={() => window.open(property.googleMapsLink, '_blank')}
+                      onClick={() =>
+                        window.open(property.googleMapsLink, "_blank")
+                      }
                     >
                       <div className="text-6xl">🗺️</div>
                       <div className="text-center px-4">
-                        <p className="text-lg font-semibold mb-2">View Location on Google Maps</p>
-                        <p className="text-sm opacity-70">Click here to open the map in a new tab</p>
+                        <p className="text-lg font-semibold mb-2">
+                          View Location on Google Maps
+                        </p>
+                        <p className="text-sm opacity-70">
+                          Click here to open the map in a new tab
+                        </p>
                         <div className="mt-4">
-                          <div className="badge badge-primary">📍 {property.address.city}</div>
+                          <div className="badge badge-primary">
+                            📍 {property.address.city}
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
-                  
+
                   <p className="text-sm text-center mt-2 opacity-70">
-                    Click anywhere on the map to open full directions in Google Maps
+                    Click anywhere on the map to open full directions in Google
+                    Maps
                   </p>
                 </div>
               </div>
@@ -515,7 +539,7 @@ const PropertyDetails = () => {
                 >
                   Request Booking
                 </button>
-                <button 
+                <button
                   onClick={handleAddToWishlist}
                   className={`btn btn-block ${
                     isInWishlist ? "btn-success" : "btn-outline"
@@ -528,9 +552,7 @@ const PropertyDetails = () => {
                       Adding...
                     </>
                   ) : isInWishlist ? (
-                    <>
-                      ✓ Added to Wishlist
-                    </>
+                    <>✓ Added to Wishlist</>
                   ) : (
                     "Add to Wishlist"
                   )}
@@ -797,77 +819,6 @@ const PropertyDetails = () => {
           </div>
         </div>
       </div>
-
-      {/* Map Modal */}
-      {showMapModal && googleMapsUrl && (
-        <div className="modal modal-open">
-          <div className="modal-box max-w-6xl w-full h-[90vh]">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-lg">Property Location & Directions</h3>
-              <button
-                onClick={() => setShowMapModal(false)}
-                className="btn btn-sm btn-circle btn-ghost"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              {/* Address Information */}
-              <div className="alert alert-info">
-                <div>
-                  <div className="font-bold">📍 Property Address</div>
-                  <div className="text-sm">
-                    {property.address.street && `${property.address.street}, `}
-                    {property.address.city}, {property.address.state}{" "}
-                    {property.address.zipCode}
-                  </div>
-                </div>
-              </div>
-
-              {/* Map with Directions */}
-              <div className="w-full h-[calc(90vh-200px)] rounded-lg overflow-hidden border-2 border-base-300">
-                <iframe
-                  src={`https://www.google.com/maps/embed/v1/directions?key=${import.meta.env.VITE_MAPS_API}&origin=current+location&destination=${encodeURIComponent(
-                    `${property.address.street || ""} ${property.address.city} ${property.address.state} ${property.address.zipCode}`
-                  )}&mode=driving`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 justify-end">
-                <a
-                  href={property.googleMapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary"
-                >
-                  Open in Google Maps
-                </a>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-                    `${property.address.street || ""} ${property.address.city} ${property.address.state} ${property.address.zipCode}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary"
-                >
-                  Get Directions from My Location
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="modal-backdrop" onClick={() => setShowMapModal(false)}>
-            <button>close</button>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>
