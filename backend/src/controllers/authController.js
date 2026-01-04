@@ -1,5 +1,7 @@
 import User from "../models/User.js";
+import OTP from "../models/OTP.js";
 import jwt from "jsonwebtoken";
+import { sendOTPEmail } from "../utils/mailer.js";
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -8,7 +10,7 @@ const generateToken = (id) => {
   });
 };
 
-// ---------------- REGISTER ----------------
+//  REGISTER (SEND OTP) 
 export async function registerUser(req, res) {
   try {
     const {
@@ -45,22 +47,93 @@ export async function registerUser(req, res) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // Create user with all provided information
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Delete any existing OTPs for this email
+    await OTP.deleteMany({ email: email.toLowerCase() });
+
+    // Save OTP to database (expires in 10 minutes)
+    await OTP.create({
+      email: email.toLowerCase(),
+      otp,
+      purpose: "email_verification",
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    });
+
+    // Send OTP email
+    await sendOTPEmail(email, otp);
+    console.log(`OTP sent to ${email}: ${otp}`);
+
+    // Store registration data temporarily in session/response for OTP verification
+    res.status(200).json({
+      message: "OTP sent to your email. Please verify to complete registration.",
+      email: email.toLowerCase(),
+      requiresOTP: true,
+    });
+  } catch (error) {
+    console.error("Error in registerUser:", error);
+    res.status(500).json({ message: "Error sending OTP" });
+  }
+}
+
+// VERIFY OTP 
+export async function verifyOTP(req, res) {
+  try {
+    const { email, otp, userData } = req.body;
+
+    // Validation
+    if (!email || !otp || !userData) {
+      return res.status(400).json({ message: "Email, OTP, and user data are required" });
+    }
+
+    // Find OTP record
+    const otpRecord = await OTP.findOne({
+      email: email.toLowerCase(),
+      otp,
+      purpose: "email_verification",
+      isUsed: false,
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // OTP is expired or not
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+
+    // user already exists or not
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // Create user with given data
     const newUser = new User({
-      name,
-      email,
-      password,
-      role,
-      phone,
-      gender,
-      occupation: occupation || "",
-      dateOfBirth: dateOfBirth || null,
-      bio: bio || "",
+      name: userData.name,
+      email: email.toLowerCase(),
+      password: userData.password,
+      role: userData.role,
+      phone: userData.phone,
+      gender: userData.gender,
+      occupation: userData.occupation || "",
+      dateOfBirth: userData.dateOfBirth || null,
+      bio: userData.bio || "",
     });
 
     await newUser.save();
 
+    // Mark OTP as used
+    otpRecord.isUsed = true;
+    await otpRecord.save();
+
+    // Generate token
     const token = generateToken(newUser._id);
+
+    console.log(`User registered successfully: ${newUser.email}`);
 
     res.status(201).json({
       message: "Registration successful",
@@ -78,8 +151,50 @@ export async function registerUser(req, res) {
       },
     });
   } catch (error) {
-    console.error("Error in registerUser:", error);
-    res.status(500).json({ message: "Error Creating User" });
+    console.error("Error in verifyOTP:", error);
+    res.status(500).json({ message: "Error verifying OTP" });
+  }
+}
+
+// RESEND OTP FUNCTION 
+export async function resendOTP(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // Generate new 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Delete old OTPs for this email
+    await OTP.deleteMany({ email: email.toLowerCase() });
+
+    // Save new OTP
+    await OTP.create({
+      email: email.toLowerCase(),
+      otp,
+      purpose: "email_verification",
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    });
+
+    // Send OTP email
+    await sendOTPEmail(email, otp);
+    console.log(`OTP resent to ${email}: ${otp}`);
+
+    res.status(200).json({
+      message: "New OTP sent to your email",
+    });
+  } catch (error) {
+    console.error("Error in resendOTP:", error);
+    res.status(500).json({ message: "Error resending OTP" });
   }
 }
 
